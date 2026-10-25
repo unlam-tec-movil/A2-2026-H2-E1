@@ -1,4 +1,4 @@
-package ar.edu.unlam.mobile.scaffolding
+package ar.edu.unlam.mobile.movil22026h2
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -27,11 +27,11 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import ar.edu.unlam.mobile.scaffolding.ui.components.BottomBar
-import ar.edu.unlam.mobile.scaffolding.ui.components.SnackbarVisualsWithError
-import ar.edu.unlam.mobile.scaffolding.ui.screens.HOME_SCREEN_ROUTE
-import ar.edu.unlam.mobile.scaffolding.ui.screens.HomeScreen
-import ar.edu.unlam.mobile.scaffolding.ui.theme.Movil22026H2Theme
+import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
+import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -1,4 +1,4 @@
-package ar.edu.unlam.mobile.scaffolding.ui.screens
+package ar.edu.unlam.mobile.movil22026h2.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
@@ -7,7 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import ar.edu.unlam.mobile.scaffolding.ui.components.Greeting
+import ar.edu.unlam.mobile.movil22026h2.ui.components.Greeting
 
 const val HOME_SCREEN_ROUTE = "home"
 

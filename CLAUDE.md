@@ -14,7 +14,7 @@ All commands use the Gradle wrapper. On Windows, use `gradlew.bat`; on Unix, use
 ./gradlew test
 
 # Run a single test class
-./gradlew test --tests "ar.edu.unlam.mobile.scaffolding.ExampleUnitTest"
+./gradlew test --tests "ar.edu.unlam.mobile.movil22026h2.ExampleUnitTest"
 
 # Run instrumented tests (requires connected device/emulator)
 ./gradlew connectedAndroidTest
@@ -31,7 +31,7 @@ All commands use the Gradle wrapper. On Windows, use `gradlew.bat`; on Unix, use
 
 ## Architecture
 
-Single-module Android app (`ar.edu.unlam.mobile.scaffolding`) using Jetpack Compose + MVVM + Hilt.
+Single-module Android app (`ar.edu.unlam.mobile.movil22026h2`) using Jetpack Compose + MVVM + Hilt.
 
 ### Navigation
 

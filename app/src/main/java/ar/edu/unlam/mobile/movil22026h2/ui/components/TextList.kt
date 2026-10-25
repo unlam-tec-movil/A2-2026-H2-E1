@@ -1,4 +1,4 @@
-package ar.edu.unlam.mobile.scaffolding.ui.components
+package ar.edu.unlam.mobile.movil22026h2.ui.components
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height

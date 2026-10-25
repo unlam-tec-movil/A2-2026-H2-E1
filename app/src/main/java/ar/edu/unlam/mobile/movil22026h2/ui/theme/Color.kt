@@ -1,4 +1,4 @@
-package ar.edu.unlam.mobile.scaffolding.ui.theme
+package ar.edu.unlam.mobile.movil22026h2.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

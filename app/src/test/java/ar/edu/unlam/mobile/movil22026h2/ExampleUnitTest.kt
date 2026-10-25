@@ -1,4 +1,4 @@
-package ar.edu.unlam.mobile.scaffolding
+package ar.edu.unlam.mobile.movil22026h2
 
 import org.junit.Assert.*
 import org.junit.Test
