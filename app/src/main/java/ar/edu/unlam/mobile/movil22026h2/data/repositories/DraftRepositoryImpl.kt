@@ -1,5 +1,6 @@
 package ar.edu.unlam.mobile.movil22026h2.data.repositories
 
+import ar.edu.unlam.mobile.movil22026h2.data.datasources.local.DraftDao
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Draft
 import javax.inject.Inject
 
@@ -7,7 +8,7 @@ class DraftRepositoryImpl
     @Inject
     constructor(
         private val draftDao: DraftDao,
-    ) : draftRepository {
+    ) : DraftRepository {
         // "?" mantiene null si no hay borrador.1
         override suspend fun getDraft(): Draft? = draftDao.getDraft()?.toDomain()
 
