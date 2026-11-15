@@ -11,7 +11,7 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule { // @Binds exige clase abstracta, no object
 
-    // "Cuando pidan interfaz, entregá esta IMPLEMENTACIÓN"
+    // "Cuando pidan la interfaz, entregá esta IMPLEMENTACIÓN"
     @Binds
     abstract fun bindFavoriteUserRepository(impl: FavoriteUserRepositoryImpl): FavoriteUserRepository
 }

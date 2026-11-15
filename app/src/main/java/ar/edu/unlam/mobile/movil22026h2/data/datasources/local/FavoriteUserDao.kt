@@ -16,6 +16,9 @@ interface FavoriteUserDao {
     @Query("SELECT EXISTS(SELECT 1 FROM favorite_users WHERE name = :name)")
     suspend fun isFavorite(name: String): Boolean
 
+    @Query("SELECT * FROM favorite_users")
+    suspend fun observeAll(): Flow<List<FavoriteUserEntity>>
+
     // REPLACE: si el autor ya existe, lo actualiza en vez de fallar.
     // suspend: escribir en disco es lento, va fuera del hilo principal.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
