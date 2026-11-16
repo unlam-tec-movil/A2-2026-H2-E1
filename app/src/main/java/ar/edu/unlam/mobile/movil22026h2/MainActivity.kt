@@ -6,11 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -31,8 +27,11 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.PROFILE_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.ProfileScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -40,7 +39,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Movil22026H2Theme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
@@ -54,22 +52,23 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    // Controller es el elemento que nos permite navegar entre pantallas. Tiene las acciones
-    // para navegar como naviegate y también la información de en dónde se "encuentra" el usuario
-    // a través del back stack
     val controller = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+
+    // Un único punto para mostrar mensajes (errores y confirmaciones) desde cualquier pantalla.
+    val showMessage: (String, Boolean) -> Unit = { message, isError ->
+        coroutineScope.launch {
+            snackBarHostState.showSnackbar(
+                SnackbarVisualsWithError(message = message, isError = isError),
+            )
+        }
+    }
+
     Scaffold(
         bottomBar = { BottomBar(controller = controller) },
-        floatingActionButton = {
-            IconButton(onClick = { controller.navigate("home") }) {
-                Icon(Icons.Filled.Home, contentDescription = "Home")
-            }
-        },
         snackbarHost = {
             SnackbarHost(snackBarHostState) { data ->
-                // custom snackbar with the custom action button color and border
                 val isError = (data.visuals as? SnackbarVisualsWithError)?.isError ?: false
                 val buttonColor =
                     if (isError) {
@@ -102,14 +101,16 @@ fun MainScreen() {
             }
         },
     ) { paddingValue ->
-        // NavHost es el componente que funciona como contenedor de los otros componentes que
-        // podrán ser destinos de navegación.
         NavHost(navController = controller, startDestination = HOME_SCREEN_ROUTE) {
-            // composable es el componente que se usa para definir un destino de navegación.
-            // Por parámetro recibe la ruta que se utilizará para navegar a dicho destino.
-            composable("home") {
-                // Home es el componente en sí que es el destino de navegación.
+            composable(HOME_SCREEN_ROUTE) {
                 HomeScreen(modifier = Modifier.padding(paddingValue))
+            }
+            composable(PROFILE_SCREEN_ROUTE) {
+                ProfileScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onError = { error -> showMessage(error.message ?: "Ocurrió un error", true) },
+                    onMessage = { message -> showMessage(message, false) },
+                )
             }
         }
     }
