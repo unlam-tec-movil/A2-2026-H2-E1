@@ -27,7 +27,7 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.CREATE_POST_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.CreatePostScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.FAVORITES_SCREEN_ROUTE
-import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoritesScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoriteUsersScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.PROFILE_SCREEN_ROUTE
@@ -124,7 +124,7 @@ fun MainScreen() {
             }
 
             composable(FAVORITES_SCREEN_ROUTE) {
-                FavoritesScreen(modifier = Modifier.padding(paddingValue))
+                FavoriteUsersScreen(modifier = Modifier.padding(paddingValue))
             }
         }
     }

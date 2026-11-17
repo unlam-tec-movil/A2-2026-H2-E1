@@ -12,24 +12,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 const val PROFILE_SCREEN_ROUTE = "profile"
-const val FAVORITES_SCREEN_ROUTE = "favorites"
 
 // Pantallas provisorias: existen para que la barra inferior tenga a dónde
-// navegar en esta rama (HU-03). En HU-07 la de favoritos se reemplaza por la real.
+// navegar en esta rama (HU-03).
 @Composable
 fun ProfileScreen(modifier: Modifier = Modifier) {
     PlaceholderScreen(
         title = "Mi perfil",
         message = "Acá vas a poder ver y editar tu perfil.",
-        modifier = modifier,
-    )
-}
-
-@Composable
-fun FavoritesScreen(modifier: Modifier = Modifier) {
-    PlaceholderScreen(
-        title = "Favoritos",
-        message = "Acá vas a ver los autores que guardaste como favoritos.",
         modifier = modifier,
     )
 }
