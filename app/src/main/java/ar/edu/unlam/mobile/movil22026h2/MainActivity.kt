@@ -123,7 +123,7 @@ fun MainScreen() {
             composable(CREATE_POST_SCREEN_ROUTE) {
                 CreatePostScreen(
                     modifier = Modifier.padding(paddingValue),
-                    onPostPublished = {
+                    onBack = {
                         // Al publicar, vuelve a Home en lugar de apilar otra pantalla.
                         controller.popBackStack(HOME_SCREEN_ROUTE, inclusive = false)
                     },

@@ -67,7 +67,7 @@ class CreatePostViewModel
         fun onPublish() {
             viewModelScope.launch {
                 try {
-                    draftRepository.saveDraft("")
+                    draftRepository.clearDraft()
                     _uiState.value = _uiState.value.copy(draftText = "")
                     _events.send(CreatePostEvent.PublishedOk)
                 } catch (e: Exception) {
