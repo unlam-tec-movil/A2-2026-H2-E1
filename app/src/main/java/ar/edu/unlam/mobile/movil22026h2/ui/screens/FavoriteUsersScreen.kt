@@ -8,9 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -20,26 +19,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
+import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.FavoriteUser
+import ar.edu.unlam.mobile.movil22026h2.ui.components.AuthorAvatar
 
 const val FAVORITES_SCREEN_ROUTE = "favorites"
-
-// Pantalla de prueba de HU-07: permite agregar, ver y quitar autores favoritos.
-private val suggestedAuthors =
-    listOf(
-        "Ana Gomez",
-        "Beto Diaz",
-        "Carla Ruiz",
-    )
 
 @Composable
 fun FavoriteUsersScreen(
@@ -47,18 +36,14 @@ fun FavoriteUsersScreen(
     viewModel: FavoriteUsersViewModel = hiltViewModel(),
 ) {
     val favorites by viewModel.favorites.collectAsState()
-    val favoriteNames by viewModel.favoriteNames.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    var authorName by rememberSaveable { mutableStateOf("") }
-    var avatarUrl by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
             val message =
                 when (event) {
-                    is FavoriteEvent.Added -> "${event.name} agregado a favoritos"
-                    is FavoriteEvent.Failed -> "No se pudo guardar: ${event.exception.message ?: "error"}"
+                    is FavoriteEvent.Added -> "${event.name} se guardó en favoritos"
+                    is FavoriteEvent.Failed -> "No se pudo completar la operación"
                 }
             snackbarHostState.showSnackbar(message)
         }
@@ -82,73 +67,58 @@ fun FavoriteUsersScreen(
                 fontWeight = FontWeight.Bold,
             )
 
-            OutlinedTextField(
-                value = authorName,
-                onValueChange = { authorName = it },
-                label = { Text("Nombre del autor") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-
-            OutlinedTextField(
-                value = avatarUrl,
-                onValueChange = { avatarUrl = it },
-                label = { Text("URL del avatar (opcional)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-            )
-
-            Button(
-                onClick = {
-                    viewModel.addFavorite(authorName.trim(), avatarUrl.trim())
-                    authorName = ""
-                    avatarUrl = ""
-                },
-                enabled = authorName.isNotBlank(),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Agregar a favoritos")
-            }
-
-            Text(
-                text = "Autores sugeridos",
-                style = MaterialTheme.typography.titleMedium,
-            )
-
-            suggestedAuthors.forEach { author ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
+            if (favorites.isEmpty()) {
+                Text(
+                    text = "Todavía no guardaste ningún autor. Agregalos desde el feed.",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            } else {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text(text = author, modifier = Modifier.weight(1f))
-                    FavoriteAuthorButton(
-                        authorName = author,
-                        isFavorite = author in favoriteNames,
-                        onClick = { viewModel.addFavorite(author, "") },
-                    )
-                }
-            }
-
-            Text(
-                text = "Tus favoritos (${favorites.size})",
-                style = MaterialTheme.typography.titleMedium,
-            )
-
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(favorites, key = { it.name }) { user ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(text = user.name, modifier = Modifier.weight(1f))
-                        TextButton(onClick = { viewModel.removeFavorite(user.name) }) {
-                            Text("Quitar")
-                        }
+                    items(favorites, key = { it.name }) { user ->
+                        FavoriteRow(
+                            user = user,
+                            onRemove = { viewModel.removeFavorite(user.name) },
+                        )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FavoriteRow(
+    user: FavoriteUser,
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            AuthorAvatar(
+                authorName = user.name,
+                avatarUrl = user.avatarUrl,
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = user.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = "Guardado en el dispositivo",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            TextButton(onClick = onRemove) {
+                Text("Quitar")
             }
         }
     }
