@@ -1,7 +1,6 @@
 package ar.edu.unlam.mobile.movil22026h2.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Star
