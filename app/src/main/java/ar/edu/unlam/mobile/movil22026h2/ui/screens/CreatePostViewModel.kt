@@ -24,7 +24,14 @@ sealed interface CreatePostEvent {
 @Immutable
 data class CreatePostUIState(
     val draftText: String = "",
-)
+    // Último texto que quedó guardado (o el que se recuperó de Room).
+    val savedDraftText: String = "",
+) {
+    // Solo se puede guardar si hay algo escrito y además es distinto de lo
+    // que ya está guardado: evita guardar dos veces el mismo borrador.
+    val canSaveDraft: Boolean
+        get() = draftText.isNotBlank() && draftText != savedDraftText
+}
 
 @HiltViewModel
 class CreatePostViewModel
@@ -49,6 +56,8 @@ class CreatePostViewModel
                 _uiState.value =
                     _uiState.value.copy(
                         draftText = draft?.text ?: "",
+                        // Si se recuperó un borrador, queda marcado como ya guardado.
+                        savedDraftText = draft?.text ?: "",
                     )
             }
         }
@@ -58,8 +67,12 @@ class CreatePostViewModel
         }
 
         fun onSaveDraft() {
+            val state = _uiState.value
+            // Doble defensa: el botón ya está deshabilitado, pero por las dudas.
+            if (!state.canSaveDraft) return
             viewModelScope.launch {
-                draftRepository.saveDraft(_uiState.value.draftText)
+                draftRepository.saveDraft(state.draftText)
+                _uiState.value = _uiState.value.copy(savedDraftText = state.draftText)
                 _events.send(CreatePostEvent.DraftSaved)
             }
         }
@@ -68,7 +81,7 @@ class CreatePostViewModel
             viewModelScope.launch {
                 try {
                     draftRepository.clearDraft()
-                    _uiState.value = _uiState.value.copy(draftText = "")
+                    _uiState.value = _uiState.value.copy(draftText = "", savedDraftText = "")
                     _events.send(CreatePostEvent.PublishedOk)
                 } catch (e: Exception) {
                     _events.send(CreatePostEvent.PublishedError)

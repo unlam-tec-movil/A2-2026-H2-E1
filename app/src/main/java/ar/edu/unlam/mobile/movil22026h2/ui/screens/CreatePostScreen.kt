@@ -117,6 +117,9 @@ fun CreatePostScreen(
             ) {
                 OutlinedButton(
                     onClick = { viewModel.onSaveDraft() },
+                    // Deshabilitado si no hay nada escrito o si el texto es
+                    // igual al borrador ya guardado/recuperado.
+                    enabled = uiState.canSaveDraft,
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(50),
                 ) { Text("Guardar borrador") }

@@ -6,11 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -30,8 +26,12 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.CREATE_POST_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.CreatePostScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.FAVORITES_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoritesScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.PROFILE_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.ProfileScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -61,18 +61,9 @@ fun MainScreen() {
     val controller = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
     Scaffold(
+        // La barra inferior es el único acceso a "Crear": antes había además un
+        // botón flotante que hacía exactamente lo mismo.
         bottomBar = { BottomBar(controller = controller) },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    controller.navigate(CREATE_POST_SCREEN_ROUTE) {
-                        launchSingleTop = true
-                    }
-                },
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Crear post")
-            }
-        },
         snackbarHost = {
             SnackbarHost(snackBarHostState) { data ->
                 // custom snackbar with the custom action button color and border
@@ -126,6 +117,14 @@ fun MainScreen() {
                         controller.popBackStack(HOME_SCREEN_ROUTE, inclusive = false)
                     },
                 )
+            }
+
+            composable(PROFILE_SCREEN_ROUTE) {
+                ProfileScreen(modifier = Modifier.padding(paddingValue))
+            }
+
+            composable(FAVORITES_SCREEN_ROUTE) {
+                FavoritesScreen(modifier = Modifier.padding(paddingValue))
             }
         }
     }
