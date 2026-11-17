@@ -7,10 +7,10 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -29,6 +29,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.CREATE_POST_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.CreatePostScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
@@ -63,8 +65,14 @@ fun MainScreen() {
     Scaffold(
         bottomBar = { BottomBar(controller = controller) },
         floatingActionButton = {
-            IconButton(onClick = { controller.navigate("home") }) {
-                Icon(Icons.Filled.Home, contentDescription = "Home")
+            FloatingActionButton(
+                onClick = {
+                    controller.navigate(CREATE_POST_SCREEN_ROUTE) {
+                        launchSingleTop = true
+                    }
+                },
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Crear post")
             }
         },
         snackbarHost = {
@@ -107,9 +115,19 @@ fun MainScreen() {
         NavHost(navController = controller, startDestination = HOME_SCREEN_ROUTE) {
             // composable es el componente que se usa para definir un destino de navegación.
             // Por parámetro recibe la ruta que se utilizará para navegar a dicho destino.
-            composable("home") {
+            composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
+            }
+
+            composable(CREATE_POST_SCREEN_ROUTE) {
+                CreatePostScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onPostPublished = {
+                        // Al publicar, vuelve a Home en lugar de apilar otra pantalla.
+                        controller.popBackStack(HOME_SCREEN_ROUTE, inclusive = false)
+                    },
+                )
             }
         }
     }

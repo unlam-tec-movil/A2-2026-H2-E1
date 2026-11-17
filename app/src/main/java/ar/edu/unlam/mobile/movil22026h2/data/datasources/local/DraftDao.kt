@@ -4,16 +4,15 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Draft
 
 @Dao
 interface DraftDao {
-    @Query("SELECT * FROM draft WHERE name = name")
-    suspend fun getDraft(): Draft?
+    @Query("SELECT * FROM draft WHERE id = 1")
+    suspend fun getDraft(): DraftEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun saveDraft(draft: Draft)
+    suspend fun saveDraft(draft: DraftEntity)
 
-    @Query("DELETE FROM draft WHERE name = name")
+    @Query("DELETE FROM draft WHERE id = 1")
     suspend fun clear()
 }

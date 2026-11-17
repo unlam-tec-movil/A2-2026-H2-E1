@@ -14,7 +14,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
-    private const val DATABASE_NAME = "movil22026h2.db"
+    private const val DATABASE_NAME = "tuiterApp.db"
 
     // @Provides porque la base se crea con un builder de Room.
     // No es una clase nuestra con constructor @Inject.
