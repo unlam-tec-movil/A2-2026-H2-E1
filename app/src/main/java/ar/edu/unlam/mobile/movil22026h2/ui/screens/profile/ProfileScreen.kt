@@ -49,9 +49,15 @@ fun ProfileScreen(
     }
 
     when (val state = uiState) {
-        ProfileUIState.Loading -> LoadingView(modifier)
-        is ProfileUIState.Error -> ErrorView(state.message, onRetry = viewModel::loadProfile, modifier = modifier)
-        is ProfileUIState.Success ->
+        ProfileUIState.Loading -> {
+            LoadingView(modifier)
+        }
+
+        is ProfileUIState.Error -> {
+            ErrorView(state.message, onRetry = viewModel::loadProfile, modifier = modifier)
+        }
+
+        is ProfileUIState.Success -> {
             ProfileContent(
                 state = state,
                 onNameChange = viewModel::onNameChange,
@@ -60,6 +66,7 @@ fun ProfileScreen(
                 onSave = viewModel::saveProfile,
                 modifier = modifier,
             )
+        }
     }
 }
 

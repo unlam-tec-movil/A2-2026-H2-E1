@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -114,6 +115,8 @@ fun MainScreen() {
                     modifier = Modifier.padding(paddingValue),
                     onError = { error -> showMessage(error.message ?: "Ocurrió un error", true) },
                     onMessage = { message -> showMessage(message, false) },
+                )
+            }
             composable(FAVORITES_SCREEN_ROUTE) {
                 FavoriteUsersScreen(modifier = Modifier.padding(paddingValue))
             }
