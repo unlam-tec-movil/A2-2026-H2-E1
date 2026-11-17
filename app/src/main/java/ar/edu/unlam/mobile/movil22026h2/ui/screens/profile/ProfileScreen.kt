@@ -81,7 +81,7 @@ private fun ProfileContent(
         verticalArrangement = Arrangement.spacedBy(12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Avatar(name = state.name, size = 96.dp)
+        Avatar(name = state.name, avatarUrl = state.avatarUrl, size = 96.dp)
 
         OutlinedTextField(
             value = state.name,
