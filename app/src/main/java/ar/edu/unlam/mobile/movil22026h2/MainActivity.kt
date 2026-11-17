@@ -21,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -31,8 +30,15 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.login.LoginScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.register.RegisterScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
+
+const val LOGIN_SCREEN_ROUTE = "login_screen"
+const val REGISTER_SCREEN_ROUTE = "register_screen"
+const val POST_SCREEN_ROUTE = "post"
+const val HOME_SCREEN_ROUTE = "home"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -59,7 +65,6 @@ fun MainScreen() {
     // a través del back stack
     val controller = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
-    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         bottomBar = { BottomBar(controller = controller) },
         floatingActionButton = {
@@ -104,10 +109,38 @@ fun MainScreen() {
     ) { paddingValue ->
         // NavHost es el componente que funciona como contenedor de los otros componentes que
         // podrán ser destinos de navegación.
-        NavHost(navController = controller, startDestination = HOME_SCREEN_ROUTE) {
-            // composable es el componente que se usa para definir un destino de navegación.
-            // Por parámetro recibe la ruta que se utilizará para navegar a dicho destino.
-            composable("home") {
+        // NavHost es el componente que funciona como contenedor de los otros componentes...
+        NavHost(navController = controller, startDestination = LOGIN_SCREEN_ROUTE) {
+
+            // 1. Pantalla de Login (HU-05)
+            composable(LOGIN_SCREEN_ROUTE) {
+                LoginScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onLoginSuccess = {
+                        // Cuando loguea bien, va al home y borra el login del historial
+                        controller.navigate(HOME_SCREEN_ROUTE) {
+                            popUpTo(LOGIN_SCREEN_ROUTE) { inclusive = true }
+                        }
+                    },
+                    onNavigateToRegister = {
+                        // Va a la pantalla de registro si no tiene cuenta
+                        controller.navigate(REGISTER_SCREEN_ROUTE)
+                    }
+                )
+            }
+
+            // 2. Pantalla de Registro (HU-04)
+            composable(REGISTER_SCREEN_ROUTE) {
+                RegisterScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onRegisterSuccess = {
+                        // Vuelve al login cuando se registra con éxito
+                        controller.popBackStack()
+                    }
+                )
+            }
+
+            composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
             }
