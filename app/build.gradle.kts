@@ -63,6 +63,7 @@ android {
 dependencies {
 
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.runtime)
     // Base
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

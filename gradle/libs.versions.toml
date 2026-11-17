@@ -16,6 +16,7 @@ ktlint = "14.2.0"
 material3 = "1.4.0"
 roomVersion = "2.8.5"
 foundation = "1.12.1"
+runtime = "1.12.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -45,6 +46,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "roomVersion" }
 androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "roomVersion" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
+androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "runtime" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
