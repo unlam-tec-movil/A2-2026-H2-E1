@@ -38,7 +38,7 @@ private val samplePosts =
     )
 
 // Implementación provisoria: devuelve siempre la misma lista.
-// Cuando el compañero conecte la API, crea otro PostRepository y cambia el
+// Cuando otro compañero conecte la API, se crea otro PostRepository y cambia el
 // @Binds de RepositoryModule. Este archivo se puede borrar sin tocar el resto.
 class FakePostRepositoryImpl
     @Inject
