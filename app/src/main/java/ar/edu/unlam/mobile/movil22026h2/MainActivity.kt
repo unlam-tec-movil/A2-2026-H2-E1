@@ -24,10 +24,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.CREATE_POST_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.CreatePostScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.FAVORITES_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoriteUsersScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.PROFILE_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.ProfileScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -57,6 +61,8 @@ fun MainScreen() {
     val controller = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
     Scaffold(
+        // La barra inferior es el único acceso a "Crear": antes había además un
+        // botón flotante que hacía exactamente lo mismo.
         bottomBar = { BottomBar(controller = controller) },
         snackbarHost = {
             SnackbarHost(snackBarHostState) { data ->
@@ -101,6 +107,20 @@ fun MainScreen() {
             composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
+            }
+
+            composable(CREATE_POST_SCREEN_ROUTE) {
+                CreatePostScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onBack = {
+                        // Al publicar, vuelve a Home en lugar de apilar otra pantalla.
+                        controller.popBackStack(HOME_SCREEN_ROUTE, inclusive = false)
+                    },
+                )
+            }
+
+            composable(PROFILE_SCREEN_ROUTE) {
+                ProfileScreen(modifier = Modifier.padding(paddingValue))
             }
 
             composable(FAVORITES_SCREEN_ROUTE) {

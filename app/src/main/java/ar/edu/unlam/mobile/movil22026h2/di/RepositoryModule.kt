@@ -1,5 +1,7 @@
 package ar.edu.unlam.mobile.movil22026h2.di
 
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepository
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FakePostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
@@ -14,6 +16,9 @@ import dagger.hilt.components.SingletonComponent
 abstract class RepositoryModule { // @Binds exige clase abstracta, no object
 
     // "Cuando pidan la interfaz, entregá esta IMPLEMENTACIÓN"
+    @Binds
+    abstract fun bindDraftRepository(impl: DraftRepositoryImpl): DraftRepository
+
     @Binds
     abstract fun bindFavoriteUserRepository(impl: FavoriteUserRepositoryImpl): FavoriteUserRepository
 
