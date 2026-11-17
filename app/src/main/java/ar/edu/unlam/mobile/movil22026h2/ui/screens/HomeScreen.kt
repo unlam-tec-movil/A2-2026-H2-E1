@@ -37,6 +37,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
+    val posts by viewModel.posts.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Escenario 1: al guardar un autor se muestra la confirmación.
@@ -71,7 +72,7 @@ fun HomeScreen(
                 )
             }
 
-            items(viewModel.posts, key = { it.id }) { post ->
+            items(posts, key = { it.id }) { post ->
                 PostCard(
                     post = post,
                     // Escenario 2: si el nombre ya está en favoritos, el post lo indica.

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.FavoriteUser
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -18,37 +19,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-// Posts de ejemplo: no hay backend todavía, así se puede probar el escenario
-// "estoy viendo un post en el feed". Ana aparece dos veces para poder verificar
-// que un autor ya guardado no se vuelve a guardar.
-private val samplePosts =
-    listOf(
-        Post(
-            id = 1,
-            authorName = "Ana Gomez",
-            authorAvatarUrl = "https://i.pravatar.cc/150?img=1",
-            content = "Arrancando la semana con todo.",
-        ),
-        Post(
-            id = 2,
-            authorName = "Beto Diaz",
-            authorAvatarUrl = "https://i.pravatar.cc/150?img=12",
-            content = "Probando la nueva app de la facu.",
-        ),
-        Post(
-            id = 3,
-            authorName = "Carla Ruiz",
-            authorAvatarUrl = "https://i.pravatar.cc/150?img=32",
-            content = "¿Alguien para estudiar para el parcial?",
-        ),
-        Post(
-            id = 4,
-            authorName = "Ana Gomez",
-            authorAvatarUrl = "https://i.pravatar.cc/150?img=1",
-            content = "Otro post de Ana: acá ya debería decir que es favorita.",
-        ),
-    )
-
 // El feed ES la pantalla de Home, por eso su ViewModel es HomeViewModel.
 // No se crea un FeedViewModel aparte para no duplicar clases en el merge.
 @HiltViewModel
@@ -56,8 +26,19 @@ class HomeViewModel
     @Inject
     constructor(
         private val repository: FavoriteUserRepository,
+        // Los posts vienen del repositorio, no están escritos acá.
+        postRepository: PostRepository,
     ) : ViewModel() {
-        val posts: List<Post> = samplePosts
+        // Cuando el repositorio apunte a la API, esta línea no cambia.
+        val posts: StateFlow<List<Post>> =
+            postRepository
+                .observePosts()
+                .catch { emit(emptyList()) }
+                .stateIn(
+                    scope = viewModelScope,
+                    started = SharingStarted.WhileSubscribed(5_000),
+                    initialValue = emptyList(),
+                )
 
         // Observer: Room emite -> Flow -> StateFlow -> Compose se redibuja solo.
         // El feed usa este set para mostrar "Ya es favorito" (escenario 2).
