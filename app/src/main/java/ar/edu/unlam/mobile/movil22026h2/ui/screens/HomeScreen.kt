@@ -34,7 +34,7 @@ const val HOME_SCREEN_ROUTE = "home"
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: FeedViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
