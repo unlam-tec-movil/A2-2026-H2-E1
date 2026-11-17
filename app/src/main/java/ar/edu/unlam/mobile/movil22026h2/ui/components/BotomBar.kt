@@ -17,7 +17,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.CREATE_POST_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.FAVORITES_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
-import ar.edu.unlam.mobile.movil22026h2.ui.screens.PROFILE_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.PROFILE_SCREEN_ROUTE
 
 // Un ítem de la barra inferior. "hiddenOn" es la ruta donde NO debe mostrarse:
 // no tiene sentido ofrecer la pantalla en la que ya estás parado.
