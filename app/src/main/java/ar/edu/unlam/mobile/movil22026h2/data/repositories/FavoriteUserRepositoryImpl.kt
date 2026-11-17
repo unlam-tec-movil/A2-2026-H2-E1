@@ -1,13 +1,14 @@
 package ar.edu.unlam.mobile.movil22026h2.data.repositories
 
-import android.R
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.local.FavoriteUserDao
+import ar.edu.unlam.mobile.movil22026h2.data.datasources.local.toDomain
+import ar.edu.unlam.mobile.movil22026h2.data.datasources.local.toEntity
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.FavoriteUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-// @Inject constructor; Hilt sabe cosntruirlo y le pasa el DAO que provee DatabaseModule.
+// @Inject constructor; Hilt sabe construirlo y le pasa el DAO que provee DatabaseModule.
 class FavoriteUserRepositoryImpl
     @Inject
     constructor(

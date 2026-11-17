@@ -29,6 +29,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.FAVORITES_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoriteUsersScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
@@ -107,9 +109,13 @@ fun MainScreen() {
         NavHost(navController = controller, startDestination = HOME_SCREEN_ROUTE) {
             // composable es el componente que se usa para definir un destino de navegación.
             // Por parámetro recibe la ruta que se utilizará para navegar a dicho destino.
-            composable("home") {
+            composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
+            }
+
+            composable(FAVORITES_SCREEN_ROUTE) {
+                FavoriteUsersScreen(modifier = Modifier.padding(paddingValue))
             }
         }
     }
