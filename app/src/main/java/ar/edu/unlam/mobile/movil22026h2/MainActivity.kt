@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
@@ -41,7 +42,6 @@ import kotlinx.coroutines.launch
 
 const val LOGIN_SCREEN_ROUTE = "login_screen"
 const val REGISTER_SCREEN_ROUTE = "register_screen"
-const val POST_SCREEN_ROUTE = "post"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -63,6 +63,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val controller = rememberNavController()
+    val currentRoute =
+        controller
+            .currentBackStackEntryAsState()
+            .value
+            ?.destination
+            ?.route
+    val showBottomBar = currentRoute != LOGIN_SCREEN_ROUTE && currentRoute != REGISTER_SCREEN_ROUTE
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -78,7 +85,7 @@ fun MainScreen() {
     Scaffold(
         // La barra inferior es el único acceso a "Crear": antes había además un
         // botón flotante que hacía exactamente lo mismo.
-        bottomBar = { BottomBar(controller = controller) },
+        bottomBar = { if (showBottomBar) BottomBar(controller = controller) },
         snackbarHost = {
             SnackbarHost(snackBarHostState) { data ->
                 val isError = (data.visuals as? SnackbarVisualsWithError)?.isError ?: false

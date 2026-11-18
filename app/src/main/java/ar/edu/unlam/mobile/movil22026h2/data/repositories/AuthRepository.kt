@@ -4,12 +4,14 @@ import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.interfaces.Tuit
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.login.LoginRequest
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.login.LoginResponse
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.register.RegisterRequest
-import jakarta.inject.Inject
+import ar.edu.unlam.mobile.movil22026h2.data.session.SessionManager
+import javax.inject.Inject
 
 class AuthRepository
     @Inject
     constructor(
         private val api: TuiterApi,
+        private val sessionManager: SessionManager,
     ) {
         suspend fun register(
             name: String,
@@ -23,8 +25,10 @@ class AuthRepository
         suspend fun login(request: LoginRequest): Result<LoginResponse> =
             try {
                 val response = api.login(request)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    sessionManager.saveToken(body.token)
+                    Result.success(body)
                 } else {
                     Result.failure(Exception("Credenciales inválidas o error en el servidor"))
                 }
