@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
@@ -31,11 +32,16 @@ import ar.edu.unlam.mobile.movil22026h2.ui.screens.FAVORITES_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoriteUsersScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.login.LoginScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.PROFILE_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.ProfileScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.register.RegisterScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+
+const val LOGIN_SCREEN_ROUTE = "login_screen"
+const val REGISTER_SCREEN_ROUTE = "register_screen"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -57,6 +63,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     val controller = rememberNavController()
+    val currentRoute =
+        controller
+            .currentBackStackEntryAsState()
+            .value
+            ?.destination
+            ?.route
+    val showBottomBar = currentRoute != LOGIN_SCREEN_ROUTE && currentRoute != REGISTER_SCREEN_ROUTE
     val snackBarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -72,7 +85,7 @@ fun MainScreen() {
     Scaffold(
         // La barra inferior es el único acceso a "Crear": antes había además un
         // botón flotante que hacía exactamente lo mismo.
-        bottomBar = { BottomBar(controller = controller) },
+        bottomBar = { if (showBottomBar) BottomBar(controller = controller) },
         snackbarHost = {
             SnackbarHost(snackBarHostState) { data ->
                 val isError = (data.visuals as? SnackbarVisualsWithError)?.isError ?: false
@@ -107,9 +120,26 @@ fun MainScreen() {
             }
         },
     ) { paddingValue ->
-        NavHost(navController = controller, startDestination = HOME_SCREEN_ROUTE) {
-            // composable es el componente que se usa para definir un destino de navegación.
-            // Por parámetro recibe la ruta que se utilizará para navegar a dicho destino.
+        NavHost(navController = controller, startDestination = LOGIN_SCREEN_ROUTE) {
+            composable(LOGIN_SCREEN_ROUTE) {
+                LoginScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onLoginSuccess = {
+                        controller.navigate(HOME_SCREEN_ROUTE) {
+                            popUpTo(LOGIN_SCREEN_ROUTE) { inclusive = true }
+                        }
+                    },
+                    onNavigateToRegister = { controller.navigate(REGISTER_SCREEN_ROUTE) },
+                )
+            }
+
+            composable(REGISTER_SCREEN_ROUTE) {
+                RegisterScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onRegisterSuccess = { controller.popBackStack() },
+                )
+            }
+
             composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))

@@ -13,6 +13,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
+import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.interfaces.TuiterApi as AuthTuiterApi
 
 /**
  * Provee las dependencias de red. Hilt las crea una sola vez (@Singleton)
@@ -50,4 +51,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideTuiterApi(retrofit: Retrofit): TuiterApi = retrofit.create(TuiterApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAuthTuiterApi(retrofit: Retrofit): AuthTuiterApi = retrofit.create(AuthTuiterApi::class.java)
 }

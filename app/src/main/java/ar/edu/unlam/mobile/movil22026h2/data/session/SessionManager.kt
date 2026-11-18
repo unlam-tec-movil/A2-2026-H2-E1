@@ -22,7 +22,7 @@ class SessionManager
         private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
         init {
-            if (getToken() == null && BuildConfig.DEBUG_USER_TOKEN.isNotBlank()) {
+            if (BuildConfig.DEBUG && getToken() == null && BuildConfig.DEBUG_USER_TOKEN.isNotBlank()) {
                 saveToken(BuildConfig.DEBUG_USER_TOKEN)
             }
         }

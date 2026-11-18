@@ -12,10 +12,10 @@ import retrofit2.http.PUT
  */
 interface TuiterApi {
     // R5 · Perfil
-    @GET("api/v1/me/profile")
+    @GET("me/profile")
     suspend fun getProfile(): ProfileDto
 
-    @PUT("api/v1/me/profile")
+    @PUT("me/profile")
     suspend fun updateProfile(
         @Body body: UpdateProfileRequest,
     ): ProfileDto
