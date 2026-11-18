@@ -6,11 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
@@ -21,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -28,17 +25,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.CREATE_POST_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.CreatePostScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.FAVORITES_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoriteUsersScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.login.LoginScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.PROFILE_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.ProfileScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.register.RegisterScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 const val LOGIN_SCREEN_ROUTE = "login_screen"
 const val REGISTER_SCREEN_ROUTE = "register_screen"
 const val POST_SCREEN_ROUTE = "post"
-const val HOME_SCREEN_ROUTE = "home"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -46,7 +49,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Movil22026H2Theme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
@@ -60,21 +62,25 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    // Controller es el elemento que nos permite navegar entre pantallas. Tiene las acciones
-    // para navegar como naviegate y también la información de en dónde se "encuentra" el usuario
-    // a través del back stack
     val controller = rememberNavController()
     val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    // Un único punto para mostrar mensajes (errores y confirmaciones) desde cualquier pantalla.
+    val showMessage: (String, Boolean) -> Unit = { message, isError ->
+        coroutineScope.launch {
+            snackBarHostState.showSnackbar(
+                SnackbarVisualsWithError(message = message, isError = isError),
+            )
+        }
+    }
+
     Scaffold(
+        // La barra inferior es el único acceso a "Crear": antes había además un
+        // botón flotante que hacía exactamente lo mismo.
         bottomBar = { BottomBar(controller = controller) },
-        floatingActionButton = {
-            IconButton(onClick = { controller.navigate("home") }) {
-                Icon(Icons.Filled.Home, contentDescription = "Home")
-            }
-        },
         snackbarHost = {
             SnackbarHost(snackBarHostState) { data ->
-                // custom snackbar with the custom action button color and border
                 val isError = (data.visuals as? SnackbarVisualsWithError)?.isError ?: false
                 val buttonColor =
                     if (isError) {
@@ -107,42 +113,50 @@ fun MainScreen() {
             }
         },
     ) { paddingValue ->
-        // NavHost es el componente que funciona como contenedor de los otros componentes que
-        // podrán ser destinos de navegación.
-        // NavHost es el componente que funciona como contenedor de los otros componentes...
         NavHost(navController = controller, startDestination = LOGIN_SCREEN_ROUTE) {
-
-            // 1. Pantalla de Login (HU-05)
             composable(LOGIN_SCREEN_ROUTE) {
                 LoginScreen(
                     modifier = Modifier.padding(paddingValue),
                     onLoginSuccess = {
-                        // Cuando loguea bien, va al home y borra el login del historial
                         controller.navigate(HOME_SCREEN_ROUTE) {
                             popUpTo(LOGIN_SCREEN_ROUTE) { inclusive = true }
                         }
                     },
-                    onNavigateToRegister = {
-                        // Va a la pantalla de registro si no tiene cuenta
-                        controller.navigate(REGISTER_SCREEN_ROUTE)
-                    }
+                    onNavigateToRegister = { controller.navigate(REGISTER_SCREEN_ROUTE) },
                 )
             }
 
-            // 2. Pantalla de Registro (HU-04)
             composable(REGISTER_SCREEN_ROUTE) {
                 RegisterScreen(
                     modifier = Modifier.padding(paddingValue),
-                    onRegisterSuccess = {
-                        // Vuelve al login cuando se registra con éxito
-                        controller.popBackStack()
-                    }
+                    onRegisterSuccess = { controller.popBackStack() },
                 )
             }
 
             composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
+            }
+            composable(PROFILE_SCREEN_ROUTE) {
+                ProfileScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onError = { error -> showMessage(error.message ?: "Ocurrió un error", true) },
+                    onMessage = { message -> showMessage(message, false) },
+                )
+            }
+
+            composable(CREATE_POST_SCREEN_ROUTE) {
+                CreatePostScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onBack = {
+                        // Al publicar, vuelve a Home en lugar de apilar otra pantalla.
+                        controller.popBackStack(HOME_SCREEN_ROUTE, inclusive = false)
+                    },
+                )
+            }
+
+            composable(FAVORITES_SCREEN_ROUTE) {
+                FavoriteUsersScreen(modifier = Modifier.padding(paddingValue))
             }
         }
     }

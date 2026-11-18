@@ -14,7 +14,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
     onLoginSuccess: () -> Unit,
-    onNavigateToRegister: () -> Unit // <--- NUEVO: Callback para ir al registro
+    onNavigateToRegister: () -> Unit, // <--- NUEVO: Callback para ir al registro
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -25,15 +25,16 @@ fun LoginScreen(
     }
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(16.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = "Iniciar Sesión",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -44,7 +45,7 @@ fun LoginScreen(
             onValueChange = { viewModel.onEmailChanged(it) },
             label = { Text("Correo electrónico") },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -56,7 +57,7 @@ fun LoginScreen(
             label = { Text("Contraseña") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
         )
 
         // Mostrar error si existe
@@ -65,7 +66,7 @@ fun LoginScreen(
             Text(
                 text = uiState.errorMessage!!,
                 color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
 
@@ -75,13 +76,13 @@ fun LoginScreen(
         Button(
             onClick = { viewModel.login() },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !uiState.isLoading
+            enabled = !uiState.isLoading,
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
                     color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = 2.dp
+                    strokeWidth = 2.dp,
                 )
             } else {
                 Text("Ingresar")
@@ -91,7 +92,7 @@ fun LoginScreen(
         Spacer(modifier = Modifier.height(16.dp))
         // Botón para redirigir al Registro
         TextButton(
-            onClick = { onNavigateToRegister() }
+            onClick = { onNavigateToRegister() },
         ) {
             Text("¿No tenés cuenta? Registrate acá")
         }

@@ -8,12 +8,13 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 
 interface TuiterApi {
-
     @POST("api/v1/users")
     suspend fun registerUser(
-        @Body request: RegisterRequest
+        @Body request: RegisterRequest,
     )
 
     @POST("login")
-    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
+    suspend fun login(
+        @Body request: LoginRequest,
+    ): Response<LoginResponse>
 }

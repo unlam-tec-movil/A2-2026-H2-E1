@@ -3,12 +3,18 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import java.util.Properties
 
-val localProperties = Properties().apply {
-    val localPropertiesFile = rootProject.file("local.properties")
-    if (localPropertiesFile.exists()) {
-        load(localPropertiesFile.inputStream())
+val localProperties =
+    Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) {
+            file.inputStream().use { load(it) }
+        }
     }
-}
+
+fun localProperty(
+    key: String,
+    default: String = "",
+): String = localProperties.getProperty(key) ?: default
 
 plugins {
     alias(libs.plugins.androidApplication)
@@ -44,10 +50,16 @@ android {
             useSupportLibrary = true
         }
 
-        val appToken = localProperties.getProperty("APPLICATION_TOKEN", "")
-        buildConfigField("String", "APP_TOKEN", "\"$appToken\"")
-
-
+        // Los tokens NO se escriben en el código: se leen de local.properties (que está en .gitignore)
+        // y quedan expuestos a través de BuildConfig.
+        buildConfigField(
+            "String",
+            "BASE_URL",
+            "\"${localProperty("TUITER_BASE_URL", "https://tuiter.fragua.com.ar/")}\"",
+        )
+        buildConfigField("String", "APPLICATION_TOKEN", "\"${localProperty("TUITER_APPLICATION_TOKEN")}\"")
+        // Solo para probar R5/R8 antes de que el login (R4) guarde el token real.
+        buildConfigField("String", "DEBUG_USER_TOKEN", "\"${localProperty("TUITER_USER_TOKEN")}\"")
     }
 
     buildTypes {
@@ -76,8 +88,8 @@ android {
 
 dependencies {
 
+    implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.runtime)
-    implementation(libs.androidx.compose.ui)
     // Base
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -105,9 +117,16 @@ dependencies {
     androidTestImplementation(libs.google.dagger.hilt.android.testing)
     testImplementation(libs.google.dagger.hilt.android.testing)
 
-    // Retrofit y OkHttp
+    // Red
     implementation(libs.retrofit)
-    implementation(libs.retrofit.gson)
+    implementation(libs.retrofit.converter.gson)
     implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
+    implementation(libs.okhttp.logging.interceptor)
+    // Imágenes
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+    // Room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 }
