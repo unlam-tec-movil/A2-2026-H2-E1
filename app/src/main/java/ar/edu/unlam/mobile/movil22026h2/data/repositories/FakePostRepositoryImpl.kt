@@ -40,8 +40,25 @@ private val samplePosts =
 // Implementación provisoria: devuelve siempre la misma lista.
 // Cuando otro compañero conecte la API, se crea otro PostRepository y cambia el
 // @Binds de RepositoryModule. Este archivo se puede borrar sin tocar el resto.
+
+/*VIEJO CODIGO
 class FakePostRepositoryImpl
     @Inject
     constructor() : PostRepository {
         override fun observePosts(): Flow<List<Post>> = flowOf(samplePosts)
     }
+*/
+
+class FakePostRepositoryImpl
+@Inject
+constructor() : PostRepository {
+    override fun observePosts(): Flow<List<Post>> = flowOf(samplePosts)
+
+    //  busca el post falso por id entre los ejemplos.
+    override suspend fun getPost(id: Int): Post =
+        samplePosts.firstOrNull { it.id == id }
+            ?: throw IllegalStateException("No hay post falso con id $id")
+
+    // los posts falsos no tienen respuestas (lista vacía).
+    override suspend fun getReplies(id: Int): List<Post> = emptyList()
+}

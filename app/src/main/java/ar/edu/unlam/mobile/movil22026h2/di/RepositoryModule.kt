@@ -3,7 +3,7 @@ package ar.edu.unlam.mobile.movil22026h2.di
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DefaultProfileRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepositoryImpl
-import ar.edu.unlam.mobile.movil22026h2.data.repositories.FakePostRepositoryImpl
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.NetworkPostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
@@ -35,5 +35,5 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     // Los posts todavía son falsos: esta línea es lo único que hay que cambiar
     // cuando exista la implementación real con la API.
     @Binds
-    abstract fun bindPostRepository(impl: FakePostRepositoryImpl): PostRepository
+    abstract fun bindPostRepository(impl: NetworkPostRepositoryImpl): PostRepository
 }
