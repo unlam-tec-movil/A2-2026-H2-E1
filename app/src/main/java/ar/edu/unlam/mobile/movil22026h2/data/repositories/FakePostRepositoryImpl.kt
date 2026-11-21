@@ -2,8 +2,12 @@ package ar.edu.unlam.mobile.movil22026h2.data.repositories
 
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import javax.inject.Singleton
 
 // ÚNICO archivo con datos falsos del feed.
 // No hay backend todavía, así que los posts de ejemplo viven acá y en ningún
@@ -37,11 +41,30 @@ private val samplePosts =
         ),
     )
 
-// Implementación provisoria: devuelve siempre la misma lista.
-// Cuando otro compañero conecte la API, se crea otro PostRepository y cambia el
-// @Binds de RepositoryModule. Este archivo se puede borrar sin tocar el resto.
+@Singleton
 class FakePostRepositoryImpl
-    @Inject
-    constructor() : PostRepository {
-        override fun observePosts(): Flow<List<Post>> = flowOf(samplePosts)
+@Inject
+constructor(
+    private val profileRepository: ProfileRepository,
+) : PostRepository {
+    private val postsFlow = MutableStateFlow(samplePosts)
+
+    override fun observePosts(): Flow<List<Post>> = postsFlow.asStateFlow()
+
+    override suspend fun createPost(content: String) {
+        val trimmedContent = content.trim()
+        require(trimmedContent.isNotEmpty()) { "El contenido del post no puede estar vacío" }
+
+        val profile = runCatching { profileRepository.getProfile() }.getOrNull()
+        val nextId = (postsFlow.value.maxOfOrNull { it.id } ?: 0) + 1
+        val newPost =
+            Post(
+                id = nextId,
+                authorName = profile?.name?.takeIf { it.isNotBlank() } ?: "Yo",
+                authorAvatarUrl = profile?.avatarUrl ?: "",
+                content = trimmedContent,
+            )
+
+        postsFlow.update { currentPosts -> listOf(newPost) + currentPosts }
     }
+}

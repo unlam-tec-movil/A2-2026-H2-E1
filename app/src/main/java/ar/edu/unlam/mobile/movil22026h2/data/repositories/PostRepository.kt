@@ -8,4 +8,6 @@ import kotlinx.coroutines.flow.Flow
 // RepositoryModule y ni la pantalla ni el ViewModel se tocan.
 interface PostRepository {
     fun observePosts(): Flow<List<Post>>
+
+    suspend fun createPost(content: String)
 }
