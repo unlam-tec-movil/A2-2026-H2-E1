@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.CREATE_POST_SCREEN_ROUTE
@@ -33,6 +35,9 @@ import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoriteUsersScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.login.LoginScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.POST_DETAIL_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.postDetailRoute
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.PostDetailScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.PROFILE_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.ProfileScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.register.RegisterScreen
@@ -120,6 +125,7 @@ fun MainScreen() {
             }
         },
     ) { paddingValue ->
+
         NavHost(navController = controller, startDestination = LOGIN_SCREEN_ROUTE) {
             composable(LOGIN_SCREEN_ROUTE) {
                 LoginScreen(
@@ -140,10 +146,31 @@ fun MainScreen() {
                 )
             }
 
+            //(HU-09): al tocar un post navegamos a la ruta
             composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
-                HomeScreen(modifier = Modifier.padding(paddingValue))
+                HomeScreen(modifier = Modifier.padding(paddingValue),
+                    onPostClick = { postId -> controller.navigate(postDetailRoute(postId)) },)
             }
+
+            /* ANTES
+            composable(PROFILE_SCREEN_ROUTE) {
+                ProfileScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onError = { error -> showMessage(error.message ?: "Ocurrió un error", true) },
+                    onMessage = { message -> showMessage(message, false) },
+                )
+            }
+            */
+
+            //(HU-09): ruta del detalle con argumento entero.
+            composable(
+                route = POST_DETAIL_SCREEN_ROUTE,
+                arguments = listOf(navArgument("postId") { type = NavType.IntType }),
+            ) {
+                PostDetailScreen(modifier = Modifier.padding(paddingValue),)
+            }
+
             composable(PROFILE_SCREEN_ROUTE) {
                 ProfileScreen(
                     modifier = Modifier.padding(paddingValue),
