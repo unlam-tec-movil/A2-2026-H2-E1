@@ -39,12 +39,22 @@ import ar.edu.unlam.mobile.movil22026h2.ui.screens.register.RegisterScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Movil22026H2Theme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import ar.edu.unlam.mobile.movil22026h2.data.session.SessionManager
+import javax.inject.Inject
 
 const val LOGIN_SCREEN_ROUTE = "login_screen"
 const val REGISTER_SCREEN_ROUTE = "register_screen"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    //indicamos con inject que queremos que se inyecte dicha dependencia
+    //usamos lateinit para declarar la propiedad sin inicializarla ahora
+    //necesitamos una instancia de SessionManager
+    //Hilt nos proporciona esa instancia automaticamente de SessionManager
+    @Inject
+    lateinit var sessionManager: SessionManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -53,7 +63,9 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    MainScreen()
+                    MainScreen(
+                        isLoggedIn = sessionManager.getToken() != null
+                    )
                 }
             }
         }
@@ -61,7 +73,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen() {
+fun MainScreen(isLoggedIn: Boolean) {
     val controller = rememberNavController()
     val currentRoute =
         controller
@@ -120,7 +132,14 @@ fun MainScreen() {
             }
         },
     ) { paddingValue ->
-        NavHost(navController = controller, startDestination = LOGIN_SCREEN_ROUTE) {
+        NavHost(
+            navController = controller,
+            startDestination = if (isLoggedIn) {
+                HOME_SCREEN_ROUTE
+            } else {
+                LOGIN_SCREEN_ROUTE
+            }
+        ) {
             composable(LOGIN_SCREEN_ROUTE) {
                 LoginScreen(
                     modifier = Modifier.padding(paddingValue),
