@@ -28,6 +28,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import ar.edu.unlam.mobile.movil22026h2.ui.components.AuthorAvatar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
+import androidx.compose.material3.CircularProgressIndicator
+import ar.edu.unlam.mobile.movil22026h2.ui.components.ErrorView
 
 const val HOME_SCREEN_ROUTE = "home"
 
@@ -37,7 +39,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
-    val posts by viewModel.posts.collectAsState()
+    val feedUiState by viewModel.feedUiState.collectAsState() //HomeScreen observa el StateFlow que expone el ViewModel, cuando el estado cambia, compose detecta el nuevo valor y puede recomponer las partes de la interfaz que lo utilizan
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Escenario 1: al guardar un autor se muestra la confirmación.
@@ -72,14 +74,47 @@ fun HomeScreen(
                 )
             }
 
-            items(posts, key = { it.id }) { post ->
-                PostCard(
-                    post = post,
-                    // Escenario 2: si el nombre ya está en favoritos, el post lo indica.
-                    isFavorite = post.authorName in favoriteNames,
-                    onAddFavorite = { viewModel.addFavorite(post.authorName, post.authorAvatarUrl) },
-                )
+            when (val state = feedUiState) {//sumamos un case para manejar lo que mostramos, dependiendo del estado que llega por parametro desde el state
+
+                FeedUiState.Loading -> {
+                    item {
+                        CircularProgressIndicator()
+                    }
+                }
+
+                is FeedUiState.Success -> {
+                    if (state.posts.isEmpty()) {
+                        item {
+                            Text("Todavía no hay publicaciones")
+                        }
+                    } else {
+                        items(state.posts, key = { it.id }) { post ->
+                            PostCard(
+                                post = post,
+                                // Escenario 2: si el nombre ya está en favoritos, el post lo indica.
+                                isFavorite = post.authorName in favoriteNames,
+                                onAddFavorite = {
+                                    viewModel.addFavorite(
+                                        post.authorName,
+                                        post.authorAvatarUrl
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
+
+                is FeedUiState.Error -> {
+                    item {
+                        ErrorView(
+                            message = state.message,
+                            onRetry = { viewModel.retryFeed() },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
             }
+
         }
     }
 }
@@ -109,12 +144,23 @@ private fun PostCard(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                 )
+                Text(
+                    text = "❤️ ${post.likes} Me gusta",
+                    style = MaterialTheme.typography.bodySmall,
+                )
             }
 
             Text(
                 text = post.content,
                 style = MaterialTheme.typography.bodyMedium,
             )
+
+            post.date?.let { date ->
+                Text(
+                    text = "Publicado: $date",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
 
             FavoriteAuthorButton(
                 authorName = post.authorName,
