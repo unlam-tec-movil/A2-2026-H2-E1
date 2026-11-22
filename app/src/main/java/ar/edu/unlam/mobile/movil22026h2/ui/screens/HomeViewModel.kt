@@ -1,5 +1,6 @@
 package ar.edu.unlam.mobile.movil22026h2.ui.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.FavoriteUser
@@ -59,6 +60,12 @@ class HomeViewModel
             }//inicialmente emitimos un estado de carga
             .retryWhen { cause, attempt ->//capturamos la excepcion
                 if (cause is CancellationException) throw cause
+
+                Log.e(
+                    "FeedDebug",
+                    "Error al obtener las publicaciones",
+                    cause
+                )
 
                 emit(
                     FeedUiState.Error(
