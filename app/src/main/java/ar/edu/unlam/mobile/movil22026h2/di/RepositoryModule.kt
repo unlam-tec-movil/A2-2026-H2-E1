@@ -1,11 +1,13 @@
 package ar.edu.unlam.mobile.movil22026h2.di
 
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.ApiPostRepository
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.DefaultPostLikeRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DefaultProfileRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepositoryImpl
-import ar.edu.unlam.mobile.movil22026h2.data.repositories.FakePostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostLikeRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.ProfileRepository
 import dagger.Binds
@@ -32,8 +34,11 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     @Binds
     abstract fun bindFavoriteUserRepository(impl: FavoriteUserRepositoryImpl): FavoriteUserRepository
 
-    // Los posts todavía son falsos: esta línea es lo único que hay que cambiar
-    // cuando exista la implementación real con la API.
+    // HU-11: el feed usa IDs reales para poder guardar los likes en la API.
+    // FakePostRepositoryImpl sigue existiendo como fallback sin conexión.
     @Binds
-    abstract fun bindPostRepository(impl: FakePostRepositoryImpl): PostRepository
+    abstract fun bindPostRepository(impl: ApiPostRepository): PostRepository
+
+    @Binds
+    abstract fun bindPostLikeRepository(impl: DefaultPostLikeRepository): PostLikeRepository
 }

@@ -28,6 +28,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import ar.edu.unlam.mobile.movil22026h2.ui.components.AuthorAvatar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
+import ar.edu.unlam.mobile.movil22026h2.ui.components.LikeButton
 
 const val HOME_SCREEN_ROUTE = "home"
 
@@ -37,7 +38,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
-    val posts by viewModel.posts.collectAsState()
+    val feedPosts by viewModel.feedPosts.collectAsState()
+    val likeStates by viewModel.likeStates.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Escenario 1: al guardar un autor se muestra la confirmación.
@@ -47,6 +49,19 @@ fun HomeScreen(
                 when (event) {
                     is FavoriteEvent.Added -> "${event.name} se guardó en favoritos"
                     is FavoriteEvent.Failed -> "No se pudo guardar: ${event.exception.message ?: "error"}"
+                }
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    // HU-11: confirmación del like y aviso si la API lo rechazó.
+    LaunchedEffect(Unit) {
+        viewModel.likeEvents.collect { event ->
+            val message =
+                when (event) {
+                    is LikeEvent.Saved ->
+                        if (event.liked) "Me gusta guardado" else "Me gusta quitado"
+                    is LikeEvent.Failed -> "No se pudo guardar el like: ${event.exception.message ?: "error"}"
                 }
             snackbarHostState.showSnackbar(message)
         }
@@ -72,12 +87,14 @@ fun HomeScreen(
                 )
             }
 
-            items(posts, key = { it.id }) { post ->
+            items(feedPosts, key = { it.id }) { post ->
                 PostCard(
                     post = post,
                     // Escenario 2: si el nombre ya está en favoritos, el post lo indica.
                     isFavorite = post.authorName in favoriteNames,
                     onAddFavorite = { viewModel.addFavorite(post.authorName, post.authorAvatarUrl) },
+                    likeState = likeStates[post.id] ?: LikeState(post.liked, post.likes),
+                    onToggleLike = { viewModel.toggleLike(post) },
                 )
             }
         }
@@ -89,6 +106,8 @@ private fun PostCard(
     post: Post,
     isFavorite: Boolean,
     onAddFavorite: () -> Unit,
+    likeState: LikeState,
+    onToggleLike: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -116,12 +135,23 @@ private fun PostCard(
                 style = MaterialTheme.typography.bodyMedium,
             )
 
-            FavoriteAuthorButton(
-                authorName = post.authorName,
-                isFavorite = isFavorite,
-                onClick = onAddFavorite,
-                modifier = Modifier.align(Alignment.End),
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                LikeButton(
+                    liked = likeState.liked,
+                    likes = likeState.likes,
+                    onClick = onToggleLike,
+                    enabled = !likeState.pending,
+                )
+                FavoriteAuthorButton(
+                    authorName = post.authorName,
+                    isFavorite = isFavorite,
+                    onClick = onAddFavorite,
+                )
+            }
         }
     }
 }
