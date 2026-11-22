@@ -31,7 +31,6 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.AuthorAvatar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
 import androidx.compose.material3.CircularProgressIndicator
 import ar.edu.unlam.mobile.movil22026h2.ui.components.ErrorView
-import androidx.compose.material3.Button
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -46,7 +45,6 @@ fun HomeScreen(
     val feedUiState by viewModel.feedUiState.collectAsState() //HomeScreen observa el StateFlow que expone el ViewModel, cuando el estado cambia, compose detecta el nuevo valor y puede recomponer las partes de la interfaz que lo utilizan
     val additionalPosts by viewModel.additionalPosts.collectAsState()
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
-    val hasMorePages by viewModel.hasMorePages.collectAsState()
     val listState = rememberLazyListState()//recordar el desplazamiento
     val snackbarHostState = remember { SnackbarHostState() }
 

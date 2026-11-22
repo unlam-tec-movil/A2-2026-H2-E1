@@ -10,19 +10,19 @@ import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.retryWhen
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 
 // El feed ES la pantalla de Home, por eso su ViewModel es HomeViewModel.
 // No se crea un FeedViewModel aparte para no duplicar clases en el merge.
@@ -34,16 +34,6 @@ class HomeViewModel
         // Los posts vienen del repositorio, no están escritos acá.
         private val postRepository: PostRepository,
     ) : ViewModel() {
-        // Cuando el repositorio apunte a la API, esta línea no cambia.
-        val posts: StateFlow<List<Post>> =
-            postRepository
-                .observePosts()
-                .catch { emit(emptyList()) } //si hay algun error, emitimos una lista vacia (esto es momentaneo). TODO: implementar un mensaje de error y un boton reintentar.
-                .stateIn(
-                    scope = viewModelScope, //la recolección compartida del flujo está vinculada al ciclo de vida del ViewModel
-                    started = SharingStarted.WhileSubscribed(5_000), //el flujo se mantiene activo mientras tenga suscriptores y deja de recolectar el flujo original después de cinco segundos sin suscriptores
-                    initialValue = emptyList(), //inicialmente no tenemos publicaciones para mostrar
-                )
 
     private val retryRequests = Channel<Unit>(Channel.CONFLATED)
 
@@ -105,14 +95,9 @@ class HomeViewModel
             .onStart {
                 emit(FeedUiState.Loading)
             }//inicialmente emitimos un estado de carga
-            .retryWhen { cause, attempt ->//capturamos la excepcion
+            .retryWhen { cause, _ ->//capturamos la excepcion
                 if (cause is CancellationException) throw cause
 
-                Log.e(
-                    "FeedDebug",
-                    "Error al obtener las publicaciones",
-                    cause
-                )
 
                 emit(
                     FeedUiState.Error(
