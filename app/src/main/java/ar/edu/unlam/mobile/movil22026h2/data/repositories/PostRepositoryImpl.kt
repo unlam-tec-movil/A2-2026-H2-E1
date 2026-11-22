@@ -18,9 +18,9 @@ constructor(
 
     private val gson = Gson()
 
-    override fun observePosts(): Flow<List<Post>> = flow {
+    override fun observePosts(page: Int): Flow<List<Post>> = flow {
 
-        val response = api.getFeed()
+        val response = api.getFeed(page = page)
 
         val posts = when {
             response.isJsonNull -> emptyList()

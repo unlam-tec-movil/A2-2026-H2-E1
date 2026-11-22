@@ -21,6 +21,8 @@ import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 
 // El feed ES la pantalla de Home, por eso su ViewModel es HomeViewModel.
 // No se crea un FeedViewModel aparte para no duplicar clases en el merge.
@@ -30,7 +32,7 @@ class HomeViewModel
     constructor(
         private val repository: FavoriteUserRepository,
         // Los posts vienen del repositorio, no están escritos acá.
-        postRepository: PostRepository,
+        private val postRepository: PostRepository,
     ) : ViewModel() {
         // Cuando el repositorio apunte a la API, esta línea no cambia.
         val posts: StateFlow<List<Post>> =
@@ -47,6 +49,51 @@ class HomeViewModel
 
     fun retryFeed() {
         retryRequests.trySend(Unit)
+    }
+
+    private var nextPage = 2
+
+
+    private val _isLoadingMore = MutableStateFlow(false)
+
+    val isLoadingMore: StateFlow<Boolean> = _isLoadingMore
+
+    private val _hasMorePages = MutableStateFlow(true)
+
+    val hasMorePages: StateFlow<Boolean> = _hasMorePages
+
+    private val _additionalPosts =
+        MutableStateFlow<List<Post>>(emptyList())
+
+    val additionalPosts: StateFlow<List<Post>> =
+        _additionalPosts
+
+    fun loadNextPage() {
+        if (_isLoadingMore.value || !_hasMorePages.value) return
+
+        _isLoadingMore.value = true
+
+        viewModelScope.launch {
+            try {
+                val nuevosPosts =
+                    postRepository.observePosts(page = nextPage).first()
+
+                if (nuevosPosts.isEmpty()) {
+                    _hasMorePages.value = false
+                } else {
+                    _additionalPosts.value =
+                        _additionalPosts.value + nuevosPosts
+
+                    nextPage++
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("FeedPagination", "Error al cargar la página", e)
+            } finally {
+                _isLoadingMore.value = false
+            }
+        }
     }
 
     val feedUiState: StateFlow<FeedUiState> =

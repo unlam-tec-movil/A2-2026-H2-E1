@@ -55,5 +55,5 @@ private val samplePosts =
 class FakePostRepositoryImpl
     @Inject
     constructor() : PostRepository {
-        override fun observePosts(): Flow<List<Post>> = flowOf(samplePosts)
+        override fun observePosts(page: Int): Flow<List<Post>> = flowOf(samplePosts)
     }

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,6 +31,9 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.AuthorAvatar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
 import androidx.compose.material3.CircularProgressIndicator
 import ar.edu.unlam.mobile.movil22026h2.ui.components.ErrorView
+import androidx.compose.material3.Button
+import androidx.compose.runtime.snapshotFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 const val HOME_SCREEN_ROUTE = "home"
 
@@ -40,6 +44,10 @@ fun HomeScreen(
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
     val feedUiState by viewModel.feedUiState.collectAsState() //HomeScreen observa el StateFlow que expone el ViewModel, cuando el estado cambia, compose detecta el nuevo valor y puede recomponer las partes de la interfaz que lo utilizan
+    val additionalPosts by viewModel.additionalPosts.collectAsState()
+    val isLoadingMore by viewModel.isLoadingMore.collectAsState()
+    val hasMorePages by viewModel.hasMorePages.collectAsState()
+    val listState = rememberLazyListState()//recordar el desplazamiento
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Escenario 1: al guardar un autor se muestra la confirmación.
@@ -54,11 +62,38 @@ fun HomeScreen(
         }
     }
 
+
+    val hasLoadedPosts =
+        (feedUiState as? FeedUiState.Success)
+            ?.posts?.isNotEmpty() == true
+
+    LaunchedEffect(listState, hasLoadedPosts) {
+        if (!hasLoadedPosts) return@LaunchedEffect
+
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val lastVisibleItem =
+                layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
+
+            layoutInfo.totalItemsCount >= 2 &&
+                    lastVisibleItem >= layoutInfo.totalItemsCount - 2 &&
+                    listState.isScrollInProgress
+        }
+            .distinctUntilChanged()
+            .collect { nearBottom ->
+                if (nearBottom) {
+                    viewModel.loadNextPage()
+                }
+            }
+    }
+
+
     Scaffold(
         modifier = modifier,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         LazyColumn(
+            state = listState,
             modifier =
                 Modifier
                     .fillMaxSize()
@@ -83,12 +118,14 @@ fun HomeScreen(
                 }
 
                 is FeedUiState.Success -> {
+                    val allPosts =
+                        (state.posts + additionalPosts).distinctBy { it.id }
                     if (state.posts.isEmpty()) {
                         item {
                             Text("Todavía no hay publicaciones")
                         }
                     } else {
-                        items(state.posts, key = { it.id }) { post ->
+                        items(allPosts, key = { it.id }) { post ->
                             PostCard(
                                 post = post,
                                 // Escenario 2: si el nombre ya está en favoritos, el post lo indica.
@@ -100,6 +137,13 @@ fun HomeScreen(
                                     )
                                 },
                             )
+                        }
+                        if (isLoadingMore) {
+                            item {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
                         }
                     }
                 }
