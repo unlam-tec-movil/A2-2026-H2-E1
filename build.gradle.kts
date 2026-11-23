@@ -10,6 +10,7 @@ plugins {
 
 val externalBuildDir = File(System.getProperty("user.home"), ".android_builds/A2-2026-H2-E1")
 allprojects {
+    if (System.getenv("CI") != null) return@allprojects
     val subPath = if (path == ":") "root" else path.removePrefix(":").replace(":", "/")
     layout.buildDirectory.set(File(externalBuildDir, subPath))
 }
