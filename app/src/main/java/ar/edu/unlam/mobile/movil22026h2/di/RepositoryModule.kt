@@ -35,7 +35,5 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     // Los posts todavía son falsos: esta línea es lo único que hay que cambiar
     // cuando exista la implementación real con la API.
     @Binds
-    abstract fun bindPostRepository(
-        impl: PostRepositoryImpl
-    ): PostRepository
+    abstract fun bindPostRepository(impl: PostRepositoryImpl): PostRepository
 }

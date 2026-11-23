@@ -15,7 +15,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class SessionManager
-    @Inject //indicamos como Hilt puede construir un objeto
+    @Inject // indicamos como Hilt puede construir un objeto
     constructor(
         @ApplicationContext context: Context,
     ) {

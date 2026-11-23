@@ -10,7 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -21,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -28,14 +33,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import ar.edu.unlam.mobile.movil22026h2.ui.components.AuthorAvatar
-import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
-import androidx.compose.material3.CircularProgressIndicator
 import ar.edu.unlam.mobile.movil22026h2.ui.components.ErrorView
-import androidx.compose.runtime.snapshotFlow
+import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
 import kotlinx.coroutines.flow.distinctUntilChanged
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.Icon
 
 const val HOME_SCREEN_ROUTE = "home"
 
@@ -45,10 +45,12 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
-    val feedUiState by viewModel.feedUiState.collectAsState() //HomeScreen observa el StateFlow que expone el ViewModel, cuando el estado cambia, compose detecta el nuevo valor y puede recomponer las partes de la interfaz que lo utilizan
+    // Observa los estados del feed.
+    // Compose actualiza la interfaz cuando cambia el estado.
+    val feedUiState by viewModel.feedUiState.collectAsState()
     val additionalPosts by viewModel.additionalPosts.collectAsState()
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
-    val listState = rememberLazyListState()//recordar el desplazamiento
+    val listState = rememberLazyListState() // recordar el desplazamiento
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Escenario 1: al guardar un autor se muestra la confirmación.
@@ -63,10 +65,10 @@ fun HomeScreen(
         }
     }
 
-
     val hasLoadedPosts =
         (feedUiState as? FeedUiState.Success)
-            ?.posts?.isNotEmpty() == true
+            ?.posts
+            ?.isNotEmpty() == true
 
     LaunchedEffect(listState, hasLoadedPosts) {
         if (!hasLoadedPosts) return@LaunchedEffect
@@ -77,17 +79,15 @@ fun HomeScreen(
                 layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
 
             layoutInfo.totalItemsCount >= 2 &&
-                    lastVisibleItem >= layoutInfo.totalItemsCount - 2 &&
-                    listState.isScrollInProgress
-        }
-            .distinctUntilChanged()
+                lastVisibleItem >= layoutInfo.totalItemsCount - 2 &&
+                listState.isScrollInProgress
+        }.distinctUntilChanged()
             .collect { nearBottom ->
                 if (nearBottom) {
                     viewModel.loadNextPage()
                 }
             }
     }
-
 
     Scaffold(
         modifier = modifier,
@@ -110,7 +110,7 @@ fun HomeScreen(
                 )
             }
 
-            when (val state = feedUiState) {//sumamos un case para manejar lo que mostramos, dependiendo del estado que llega por parametro desde el state
+            when (val state = feedUiState) { // Muestra el contenido correspondiente al estado del feed con un case.
 
                 FeedUiState.Loading -> {
                     item {
@@ -134,7 +134,7 @@ fun HomeScreen(
                                 onAddFavorite = {
                                     viewModel.addFavorite(
                                         post.authorName,
-                                        post.authorAvatarUrl
+                                        post.authorAvatarUrl,
                                     )
                                 },
                             )
@@ -142,7 +142,7 @@ fun HomeScreen(
                         if (isLoadingMore) {
                             item {
                                 CircularProgressIndicator(
-                                    modifier = Modifier.padding(16.dp)
+                                    modifier = Modifier.padding(16.dp),
                                 )
                             }
                         }
@@ -154,12 +154,11 @@ fun HomeScreen(
                         ErrorView(
                             message = state.message,
                             onRetry = { viewModel.retryFeed() },
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }
             }
-
         }
     }
 }
@@ -218,10 +217,11 @@ private fun PostCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Row(
-                    modifier = Modifier.padding(
-                        horizontal = 12.dp,
-                        vertical = 8.dp,
-                    ),
+                    modifier =
+                        Modifier.padding(
+                            horizontal = 12.dp,
+                            vertical = 8.dp,
+                        ),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -243,7 +243,6 @@ private fun PostCard(
                     onClick = onAddFavorite,
                 )
             }
-
         }
     }
 }
