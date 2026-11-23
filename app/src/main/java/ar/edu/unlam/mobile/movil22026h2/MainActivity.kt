@@ -156,6 +156,7 @@ fun MainScreen(startDestination: String = LOGIN_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
             }
+
             composable(PROFILE_SCREEN_ROUTE) {
                 ProfileScreen(
                     modifier = Modifier.padding(paddingValue),
