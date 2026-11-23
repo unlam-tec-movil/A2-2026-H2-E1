@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 // Cuando esté la API, se cambia la implementación que se bindea en
 // RepositoryModule y ni la pantalla ni el ViewModel se tocan.
 interface PostRepository {
-    fun observePosts(): Flow<List<Post>>
+    fun observePosts(page: Int = 1): Flow<List<Post>>
 }
