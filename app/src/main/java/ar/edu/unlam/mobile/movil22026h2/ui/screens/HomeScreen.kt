@@ -33,6 +33,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import ar.edu.unlam.mobile.movil22026h2.ui.components.ErrorView
 import androidx.compose.runtime.snapshotFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Icon
 
 const val HOME_SCREEN_ROUTE = "home"
 
@@ -181,15 +184,27 @@ private fun PostCard(
                     authorName = post.authorName,
                     avatarUrl = post.authorAvatarUrl,
                 )
-                Text(
-                    text = post.authorName,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                )
-                Text(
-                    text = "❤️ ${post.likes} Me gusta",
-                    style = MaterialTheme.typography.bodySmall,
-                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text(
+                        text = post.authorName,
+                        modifier = Modifier.alignByBaseline(),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+
+                    post.date?.let { date ->
+                        Text(
+                            text = date.take(16).replace("T", " · "),
+                            modifier = Modifier.alignByBaseline(),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
 
             Text(
@@ -197,19 +212,38 @@ private fun PostCard(
                 style = MaterialTheme.typography.bodyMedium,
             )
 
-            post.date?.let { date ->
-                Text(
-                    text = "Publicado: $date",
-                    style = MaterialTheme.typography.bodySmall,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp,
+                        vertical = 8.dp,
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(
+                        text = "${post.likes} Me gusta",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+
+                FavoriteAuthorButton(
+                    authorName = post.authorName,
+                    isFavorite = isFavorite,
+                    onClick = onAddFavorite,
                 )
             }
 
-            FavoriteAuthorButton(
-                authorName = post.authorName,
-                isFavorite = isFavorite,
-                onClick = onAddFavorite,
-                modifier = Modifier.align(Alignment.End),
-            )
         }
     }
 }
