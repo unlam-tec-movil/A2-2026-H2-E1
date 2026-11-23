@@ -4,7 +4,6 @@ import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,28 +42,28 @@ private val samplePosts =
 
 @Singleton
 class FakePostRepositoryImpl
-@Inject
-constructor(
-    private val profileRepository: ProfileRepository,
-) : PostRepository {
-    private val postsFlow = MutableStateFlow(samplePosts)
+    @Inject
+    constructor(
+        private val profileRepository: ProfileRepository,
+    ) : PostRepository {
+        private val postsFlow = MutableStateFlow(samplePosts)
 
-    override fun observePosts(): Flow<List<Post>> = postsFlow.asStateFlow()
+        override fun observePosts(): Flow<List<Post>> = postsFlow.asStateFlow()
 
-    override suspend fun createPost(content: String) {
-        val trimmedContent = content.trim()
-        require(trimmedContent.isNotEmpty()) { "El contenido del post no puede estar vacío" }
+        override suspend fun createPost(content: String) {
+            val trimmedContent = content.trim()
+            require(trimmedContent.isNotEmpty()) { "El contenido del post no puede estar vacío" }
 
-        val profile = runCatching { profileRepository.getProfile() }.getOrNull()
-        val nextId = (postsFlow.value.maxOfOrNull { it.id } ?: 0) + 1
-        val newPost =
-            Post(
-                id = nextId,
-                authorName = profile?.name?.takeIf { it.isNotBlank() } ?: "Yo",
-                authorAvatarUrl = profile?.avatarUrl ?: "",
-                content = trimmedContent,
-            )
+            val profile = runCatching { profileRepository.getProfile() }.getOrNull()
+            val nextId = (postsFlow.value.maxOfOrNull { it.id } ?: 0) + 1
+            val newPost =
+                Post(
+                    id = nextId,
+                    authorName = profile?.name?.takeIf { it.isNotBlank() } ?: "Yo",
+                    authorAvatarUrl = profile?.avatarUrl ?: "",
+                    content = trimmedContent,
+                )
 
-        postsFlow.update { currentPosts -> listOf(newPost) + currentPosts }
+            postsFlow.update { currentPosts -> listOf(newPost) + currentPosts }
+        }
     }
-}

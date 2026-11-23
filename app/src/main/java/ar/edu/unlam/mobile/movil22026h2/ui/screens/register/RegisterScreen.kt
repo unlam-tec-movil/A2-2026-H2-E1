@@ -297,9 +297,9 @@ fun RegisterScreen(
 
                     val isFormValid =
                         state.name.isNotBlank() &&
-                                state.email.isNotBlank() &&
-                                state.password.isNotBlank() &&
-                                state.emailError == null
+                            state.email.isNotBlank() &&
+                            state.password.isNotBlank() &&
+                            state.emailError == null
 
                     Button(
                         onClick = { viewModel.register() },
