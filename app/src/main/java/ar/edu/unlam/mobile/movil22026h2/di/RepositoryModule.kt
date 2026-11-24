@@ -6,8 +6,8 @@ import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
-import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.ProfileRepository
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.RemotePostRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -32,8 +32,7 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     @Binds
     abstract fun bindFavoriteUserRepository(impl: FavoriteUserRepositoryImpl): FavoriteUserRepository
 
-    // Los posts todavía son falsos: esta línea es lo único que hay que cambiar
-    // cuando exista la implementación real con la API.
     @Binds
-    abstract fun bindPostRepository(impl: PostRepositoryImpl): PostRepository
+    @Singleton
+    abstract fun bindPostRepository(impl: RemotePostRepositoryImpl): PostRepository
 }

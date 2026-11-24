@@ -56,15 +56,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val startDestination =
+            if (sessionManager.getToken() != null) {
+                HOME_SCREEN_ROUTE
+            } else {
+                LOGIN_SCREEN_ROUTE
+            }
+
         setContent {
             Movil22026H2Theme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    MainScreen(
-                        isLoggedIn = sessionManager.getToken() != null,
-                    )
+                    MainScreen(startDestination = startDestination)
                 }
             }
         }
@@ -72,7 +77,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainScreen(isLoggedIn: Boolean) {
+fun MainScreen(startDestination: String = LOGIN_SCREEN_ROUTE) {
     val controller = rememberNavController()
     val currentRoute =
         controller
@@ -131,15 +136,7 @@ fun MainScreen(isLoggedIn: Boolean) {
             }
         },
     ) { paddingValue ->
-        NavHost(
-            navController = controller,
-            startDestination =
-                if (isLoggedIn) {
-                    HOME_SCREEN_ROUTE
-                } else {
-                    LOGIN_SCREEN_ROUTE
-                },
-        ) {
+        NavHost(navController = controller, startDestination = startDestination) {
             composable(LOGIN_SCREEN_ROUTE) {
                 LoginScreen(
                     modifier = Modifier.padding(paddingValue),
@@ -163,6 +160,7 @@ fun MainScreen(isLoggedIn: Boolean) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
             }
+
             composable(PROFILE_SCREEN_ROUTE) {
                 ProfileScreen(
                     modifier = Modifier.padding(paddingValue),
