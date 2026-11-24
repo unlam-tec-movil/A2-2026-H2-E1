@@ -28,6 +28,7 @@ interface TuiterApi {
     suspend fun createPost(
         @Body body: CreatePostRequest,
     )
+
     @GET("me/feed")
     suspend fun getFeed(
         @Query("page") page: Int = 1,

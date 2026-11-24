@@ -60,7 +60,7 @@ class FakePostRepositoryImpl
     ) : PostRepository {
         private val postsFlow = MutableStateFlow(samplePosts)
 
-        override fun observePosts(): Flow<List<Post>> = postsFlow.asStateFlow()
+        override fun observePosts(page: Int): Flow<List<Post>> = postsFlow.asStateFlow()
 
         override suspend fun createPost(content: String) {
             val trimmedContent = content.trim()

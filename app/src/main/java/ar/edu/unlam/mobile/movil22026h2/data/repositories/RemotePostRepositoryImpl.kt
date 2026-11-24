@@ -47,7 +47,7 @@ class RemotePostRepositoryImpl
     ) : PostRepository {
         private val postsFlow = MutableStateFlow(initialPosts)
 
-        override fun observePosts(): Flow<List<Post>> = postsFlow.asStateFlow()
+        override fun observePosts(page: Int): Flow<List<Post>> = postsFlow.asStateFlow()
 
         override suspend fun createPost(content: String) {
             val trimmedContent = content.trim()

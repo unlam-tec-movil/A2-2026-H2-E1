@@ -6,7 +6,6 @@ import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
-import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.ProfileRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.RemotePostRepositoryImpl
 import dagger.Binds
