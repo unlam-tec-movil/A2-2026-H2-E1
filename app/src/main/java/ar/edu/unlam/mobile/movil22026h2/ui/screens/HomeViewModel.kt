@@ -1,5 +1,6 @@
 package ar.edu.unlam.mobile.movil22026h2.ui.screens
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.FavoriteUser
@@ -9,11 +10,15 @@ import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -27,17 +32,83 @@ class HomeViewModel
     constructor(
         private val repository: FavoriteUserRepository,
         // Los posts vienen del repositorio, no están escritos acá.
-        postRepository: PostRepository,
+        private val postRepository: PostRepository,
     ) : ViewModel() {
-        // Cuando el repositorio apunte a la API, esta línea no cambia.
-        val posts: StateFlow<List<Post>> =
+        private val retryRequests = Channel<Unit>(Channel.CONFLATED)
+
+        fun retryFeed() {
+            retryRequests.trySend(Unit)
+        }
+
+        private var nextPage = 2
+
+        private val _isLoadingMore = MutableStateFlow(false)
+
+        val isLoadingMore: StateFlow<Boolean> = _isLoadingMore
+
+        private val _hasMorePages = MutableStateFlow(true)
+
+        val hasMorePages: StateFlow<Boolean> = _hasMorePages
+
+        private val _additionalPosts =
+            MutableStateFlow<List<Post>>(emptyList())
+
+        val additionalPosts: StateFlow<List<Post>> =
+            _additionalPosts
+
+        fun loadNextPage() {
+            if (_isLoadingMore.value || !_hasMorePages.value) return
+
+            _isLoadingMore.value = true
+
+            viewModelScope.launch {
+                try {
+                    val nuevosPosts =
+                        postRepository.observePosts(page = nextPage).first()
+
+                    if (nuevosPosts.isEmpty()) {
+                        _hasMorePages.value = false
+                    } else {
+                        _additionalPosts.value =
+                            _additionalPosts.value + nuevosPosts
+
+                        nextPage++
+                    }
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    Log.e("FeedPagination", "Error al cargar la página", e)
+                } finally {
+                    _isLoadingMore.value = false
+                }
+            }
+        }
+
+        val feedUiState: StateFlow<FeedUiState> =
             postRepository
                 .observePosts()
-                .catch { emit(emptyList()) }
-                .stateIn(
+                .map<List<Post>, FeedUiState> { posts ->
+                    FeedUiState.Success(posts)
+                } // cuando el repo emite una lista de posts, la transformamos en un estado Success que contiene esa lista
+                .onStart {
+                    emit(FeedUiState.Loading)
+                } // inicialmente emitimos un estado de carga
+                .retryWhen { cause, _ ->
+                    // capturamos la excepcion
+                    if (cause is CancellationException) throw cause
+
+                    emit(
+                        FeedUiState.Error(
+                            "No se pudieron cargar las publicaciones",
+                        ),
+                    )
+
+                    retryRequests.receive() // la corrutina queda suspendida esperando señal del usuario para reintentar
+                    true // dspues de la señal le indicamos a retryWhen que se emita nuevamente
+                }.stateIn(
                     scope = viewModelScope,
                     started = SharingStarted.WhileSubscribed(5_000),
-                    initialValue = emptyList(),
+                    initialValue = FeedUiState.Loading, // el valor inicial es una pantalla de carga
                 )
 
         // Observer: Room emite -> Flow -> StateFlow -> Compose se redibuja solo.

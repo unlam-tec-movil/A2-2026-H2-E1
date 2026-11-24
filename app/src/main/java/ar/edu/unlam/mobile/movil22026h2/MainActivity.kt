@@ -47,6 +47,10 @@ const val REGISTER_SCREEN_ROUTE = "register_screen"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+    // indicamos con inject que queremos que se inyecte dicha dependencia
+    // usamos lateinit para declarar la propiedad sin inicializarla ahora
+    // necesitamos una instancia de SessionManager
+    // Hilt nos proporciona esa instancia automaticamente de SessionManager
     @Inject
     lateinit var sessionManager: SessionManager
 
@@ -156,6 +160,7 @@ fun MainScreen(startDestination: String = LOGIN_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
                 HomeScreen(modifier = Modifier.padding(paddingValue))
             }
+
             composable(PROFILE_SCREEN_ROUTE) {
                 ProfileScreen(
                     modifier = Modifier.padding(paddingValue),

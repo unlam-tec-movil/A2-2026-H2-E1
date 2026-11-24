@@ -3,7 +3,6 @@ package ar.edu.unlam.mobile.movil22026h2.di
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DefaultProfileRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepositoryImpl
-import ar.edu.unlam.mobile.movil22026h2.data.repositories.FakePostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
@@ -36,6 +35,4 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     @Binds
     @Singleton
     abstract fun bindPostRepository(impl: RemotePostRepositoryImpl): PostRepository
-
-
 }

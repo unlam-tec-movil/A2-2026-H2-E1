@@ -50,7 +50,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import ar.edu.unlam.mobile.movil22026h2.ui.theme.Pink40
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Pink80
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Purple40
 import ar.edu.unlam.mobile.movil22026h2.ui.theme.Purple80

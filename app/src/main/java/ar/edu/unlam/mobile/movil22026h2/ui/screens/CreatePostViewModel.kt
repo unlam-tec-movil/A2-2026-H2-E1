@@ -38,64 +38,64 @@ data class CreatePostUIState(
 
 @HiltViewModel
 class CreatePostViewModel
-@Inject
-constructor(
-    private val draftRepository: DraftRepository,
-    private val postRepository: PostRepository,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(CreatePostUIState())
-    val uiState: StateFlow<CreatePostUIState> = _uiState.asStateFlow()
+    @Inject
+    constructor(
+        private val draftRepository: DraftRepository,
+        private val postRepository: PostRepository,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(CreatePostUIState())
+        val uiState: StateFlow<CreatePostUIState> = _uiState.asStateFlow()
 
-    private val _events = Channel<CreatePostEvent>(Channel.BUFFERED)
-    val events = _events.receiveAsFlow()
+        private val _events = Channel<CreatePostEvent>(Channel.BUFFERED)
+        val events = _events.receiveAsFlow()
 
-    init {
-        viewModelScope.launch {
-            val draft = draftRepository.getDraft()
-            _uiState.update {
-                it.copy(
-                    draftText = draft?.text ?: "",
-                    savedDraftText = draft?.text ?: "",
-                )
-            }
-        }
-    }
-
-    fun onDraftChanged(text: String) {
-        _uiState.update { it.copy(draftText = text) }
-    }
-
-    fun onSaveDraft() {
-        val state = _uiState.value
-        if (!state.canSaveDraft) return
-        viewModelScope.launch {
-            draftRepository.saveDraft(state.draftText)
-            _uiState.update { it.copy(savedDraftText = state.draftText) }
-            _events.send(CreatePostEvent.DraftSaved)
-        }
-    }
-
-    fun onPublish() {
-        val state = _uiState.value
-        if (!state.canPublish) return
-
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            try {
-                postRepository.createPost(state.draftText)
-                draftRepository.clearDraft()
+        init {
+            viewModelScope.launch {
+                val draft = draftRepository.getDraft()
                 _uiState.update {
                     it.copy(
-                        draftText = "",
-                        savedDraftText = "",
-                        isLoading = false,
+                        draftText = draft?.text ?: "",
+                        savedDraftText = draft?.text ?: "",
                     )
                 }
-                _events.send(CreatePostEvent.PublishedOk)
-            } catch (e: Exception) {
-                _uiState.update { it.copy(isLoading = false) }
-                _events.send(CreatePostEvent.PublishedError)
+            }
+        }
+
+        fun onDraftChanged(text: String) {
+            _uiState.update { it.copy(draftText = text) }
+        }
+
+        fun onSaveDraft() {
+            val state = _uiState.value
+            if (!state.canSaveDraft) return
+            viewModelScope.launch {
+                draftRepository.saveDraft(state.draftText)
+                _uiState.update { it.copy(savedDraftText = state.draftText) }
+                _events.send(CreatePostEvent.DraftSaved)
+            }
+        }
+
+        fun onPublish() {
+            val state = _uiState.value
+            if (!state.canPublish) return
+
+            viewModelScope.launch {
+                _uiState.update { it.copy(isLoading = true) }
+                try {
+                    postRepository.createPost(state.draftText)
+                    draftRepository.clearDraft()
+                    _uiState.update {
+                        it.copy(
+                            draftText = "",
+                            savedDraftText = "",
+                            isLoading = false,
+                        )
+                    }
+                    _events.send(CreatePostEvent.PublishedOk)
+                } catch (e: Exception) {
+                    _uiState.update { it.copy(isLoading = false) }
+                    _events.send(CreatePostEvent.PublishedError)
+                }
             }
         }
     }
-}
