@@ -17,12 +17,13 @@ class NetworkPostRepositoryImpl
             flow {
                 val response = api.getFeed(page = 1, onlyParents = true)
                 if (!response.isSuccessful) throw HttpException(response)
-                //VIEJO Codigo
+                // VIEJO Codigo
                 // body() puede ser null cuando la página no tiene posts.
-               // emit(response.body().orEmpty().map { it.toDomain() })
+                // emit(response.body().orEmpty().map { it.toDomain() })
                 val autoresAOcultar = setOf("Walter", "Probe User")
                 emit(
-                    response.body()
+                    response
+                        .body()
                         .orEmpty()
                         .map { it.toDomain() }
                         .filterNot { post ->
@@ -33,7 +34,7 @@ class NetworkPostRepositoryImpl
                 )
             }
 
-        //HU-09: trae el post completo que se abrió desde el feed.
+        // HU-09: trae el post completo que se abrió desde el feed.
         override suspend fun getPost(id: Int): Post {
             val response = api.getPost(id)
             if (!response.isSuccessful) throw HttpException(response)

@@ -26,17 +26,19 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.EmptyView
 import ar.edu.unlam.mobile.movil22026h2.ui.components.ErrorView
 import ar.edu.unlam.mobile.movil22026h2.ui.components.LoadingView
 
+// Plantilla que registra Navigation ({postId} = marcador)
 const val POST_DETAIL_SCREEN_ROUTE = "post_detail/{postId}"
+
+// Devuelve "post_detail/878", la ruta real con el número
 fun postDetailRoute(postId: Int): String = "post_detail/$postId"
 
-//(HU-09) Pantalla de detalle de un post
+// (HU-09) Pantalla de detalle de un post
 
 @Composable
 fun PostDetailScreen(
     modifier: Modifier = Modifier,
     viewModel: PostViewModel = hiltViewModel(),
 ) {
-
     val state by viewModel.uiState.collectAsState()
 
     Scaffold(modifier = modifier) { padding ->
@@ -44,13 +46,12 @@ fun PostDetailScreen(
         val post = state.post
 
         when {
-
             state.isLoading -> LoadingView(modifier = contentModifier)
 
             state.error != null ->
                 ErrorView(
                     message = state.error ?: "Ocurrió un error",
-                    onRetry = viewModel::retry,
+                    onRetry = viewModel::retry, // <- boton reintentar
                     modifier = contentModifier,
                 )
 
@@ -98,14 +99,13 @@ private fun DetailContent(
             fontWeight = FontWeight.Bold,
         )
 
-        if (replies.isEmpty()) {
+        if (replies.isEmpty()) { // <- si esta vacio
 
             Text(
                 text = "Todavía no tiene respuestas.",
                 style = MaterialTheme.typography.bodyMedium,
             )
         } else {
-
             LazyColumn(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(8.dp),

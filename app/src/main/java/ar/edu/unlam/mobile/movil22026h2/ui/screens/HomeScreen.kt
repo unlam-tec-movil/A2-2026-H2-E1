@@ -32,7 +32,7 @@ import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
 
 const val HOME_SCREEN_ROUTE = "home"
 
-//(HU-09): recibimos onPostClick desde MainActivity
+// (HU-09): recibimos onPostClick desde MainActivity
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
@@ -99,7 +99,8 @@ fun HomeScreen(
         }
     }
 }
-//(HU-09): clickable detecta el toque sobre toda la tarjeta.
+
+// (HU-09): clickable detecta el toque sobre toda la tarjeta.
 @Composable
 private fun PostCard(
     post: Post,
@@ -142,7 +143,7 @@ private fun PostCard(
             )
         }
     }
-    */
+     */
     Card(modifier = modifier.fillMaxWidth().clickable { onPostClick() }) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -176,5 +177,4 @@ private fun PostCard(
             )
         }
     }
-
 }

@@ -10,8 +10,9 @@ interface PostRepository {
     // Feed (HU-01, soporte para llegar a HU-09).
     fun observePosts(): Flow<List<Post>>
 
-    //(HU-09)Trae un post completo por id
+    // (HU-09)Trae un post completo por id
     suspend fun getPost(id: Int): Post
-    //(HU-09)Trae las respuestas de un post
+
+    // (HU-09)Trae las respuestas de un post
     suspend fun getReplies(id: Int): List<Post>
 }

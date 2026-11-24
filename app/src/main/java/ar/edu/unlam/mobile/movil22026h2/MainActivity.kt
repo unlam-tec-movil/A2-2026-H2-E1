@@ -36,8 +36,8 @@ import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.login.LoginScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.POST_DETAIL_SCREEN_ROUTE
-import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.postDetailRoute
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.PostDetailScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.postDetailRoute
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.PROFILE_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.ProfileScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.register.RegisterScreen
@@ -126,7 +126,7 @@ fun MainScreen() {
         },
     ) { paddingValue ->
 
-        NavHost(navController = controller, startDestination = LOGIN_SCREEN_ROUTE) {
+        NavHost(navController = controller, startDestination = HOME_SCREEN_ROUTE) {
             composable(LOGIN_SCREEN_ROUTE) {
                 LoginScreen(
                     modifier = Modifier.padding(paddingValue),
@@ -146,11 +146,13 @@ fun MainScreen() {
                 )
             }
 
-            //(HU-09): al tocar un post navegamos a la ruta
+            // (HU-09): al tocar un post navegamos a la ruta
             composable(HOME_SCREEN_ROUTE) {
                 // Home es el componente en sí que es el destino de navegación.
-                HomeScreen(modifier = Modifier.padding(paddingValue),
-                    onPostClick = { postId -> controller.navigate(postDetailRoute(postId)) },)
+                HomeScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onPostClick = { postId -> controller.navigate(postDetailRoute(postId)) },
+                )
             }
 
             /* ANTES
@@ -161,14 +163,14 @@ fun MainScreen() {
                     onMessage = { message -> showMessage(message, false) },
                 )
             }
-            */
+             */
 
-            //(HU-09): ruta del detalle con argumento entero.
+            // (HU-09): ruta del detalle con argumento entero.
             composable(
                 route = POST_DETAIL_SCREEN_ROUTE,
                 arguments = listOf(navArgument("postId") { type = NavType.IntType }),
             ) {
-                PostDetailScreen(modifier = Modifier.padding(paddingValue),)
+                PostDetailScreen(modifier = Modifier.padding(paddingValue))
             }
 
             composable(PROFILE_SCREEN_ROUTE) {

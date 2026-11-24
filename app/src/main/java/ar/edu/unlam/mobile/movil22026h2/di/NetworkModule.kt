@@ -60,5 +60,4 @@ object NetworkModule {
     @Provides
     @Singleton
     fun providePostApi(retrofit: Retrofit): PostApi = retrofit.create(PostApi::class.java)
-
 }

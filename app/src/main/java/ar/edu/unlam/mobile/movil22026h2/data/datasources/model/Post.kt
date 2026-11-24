@@ -7,8 +7,9 @@ data class Post(
     val authorName: String,
     val authorAvatarUrl: String,
     val content: String,
-    val parentId: Int = 0,
-    val likes: Int = 0,
-    val liked: Boolean = false,
-    val date: String = "",
+    val parentId: Int = 0, // creamos para saber que se trata de una publicacion y no del valor de padre
+    val likes: Int = 0, // iniciamo en cero el valor de los like que tiene el post
+    val liked: Boolean = false, // variable de tipo boolean que permite determinar
+    // si el usuario indico que le gusta la respuesta
+    val date: String = "", // varible que determina la fecha de la publicacion
 )

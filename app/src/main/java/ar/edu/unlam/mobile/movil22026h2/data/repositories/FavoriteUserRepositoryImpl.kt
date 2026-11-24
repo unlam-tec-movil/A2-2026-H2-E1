@@ -6,7 +6,6 @@ import ar.edu.unlam.mobile.movil22026h2.data.datasources.local.toEntity
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.FavoriteUser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-
 import javax.inject.Inject
 
 // @Inject constructor; Hilt sabe construirlo y le pasa el DAO que provee DatabaseModule.
