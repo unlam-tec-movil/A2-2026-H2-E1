@@ -34,11 +34,12 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     @Binds
     abstract fun bindFavoriteUserRepository(impl: FavoriteUserRepositoryImpl): FavoriteUserRepository
 
-    // HU-11: el feed usa IDs reales para poder guardar los likes en la API.
-    // FakePostRepositoryImpl sigue existiendo como fallback sin conexión.
+    // R1/R2/R8: el feed real de la API reemplaza al repositorio local.
+    // Mantiene createPost() y observePosts(page) del contrato de develop.
     @Binds
     abstract fun bindPostRepository(impl: ApiPostRepository): PostRepository
 
+    // HU-11: la UI pide setLike() y no sabe si se guarda con POST o DELETE.
     @Binds
     abstract fun bindPostLikeRepository(impl: DefaultPostLikeRepository): PostLikeRepository
 }

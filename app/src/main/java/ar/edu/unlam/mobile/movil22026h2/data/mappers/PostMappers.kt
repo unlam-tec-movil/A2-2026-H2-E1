@@ -10,6 +10,7 @@ fun FeedPostDto.toDomain(): Post =
         authorName = author,
         authorAvatarUrl = avatarUrl,
         content = message,
+        date = date,
         likes = likes,
         liked = liked,
     )

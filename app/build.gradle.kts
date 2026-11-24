@@ -55,7 +55,7 @@ android {
         buildConfigField(
             "String",
             "BASE_URL",
-            "\"${localProperty("TUITER_BASE_URL", "https://tuiter.fragua.com.ar/")}\"",
+            "\"${localProperty("TUITER_BASE_URL", "https://tuiter.fragua.com.ar/api/v1/")}\"",
         )
         buildConfigField("String", "APPLICATION_TOKEN", "\"${localProperty("TUITER_APPLICATION_TOKEN")}\"")
         // Solo para probar R5/R8 antes de que el login (R4) guarde el token real.
