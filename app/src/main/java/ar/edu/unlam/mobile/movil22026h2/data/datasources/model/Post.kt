@@ -8,6 +8,7 @@ data class Post(
     val authorName: String,
     val authorAvatarUrl: String,
     val content: String,
+    val parentId: Int = 0,
     val date: String? = null,
     val likes: Int = 0,
     val liked: Boolean = false,
