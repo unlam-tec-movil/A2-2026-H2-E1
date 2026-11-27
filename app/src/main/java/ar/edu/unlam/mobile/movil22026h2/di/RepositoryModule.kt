@@ -9,6 +9,7 @@ import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostLikeRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.ProfileRepository
 import dagger.Binds
 import dagger.Module
@@ -37,9 +38,6 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     // R1/R2/R8: el feed real de la API reemplaza al repositorio local.
     // Mantiene createPost() y observePosts(page) del contrato de develop.
     @Binds
-    abstract fun bindPostRepository(impl: ApiPostRepository): PostRepository
-
-    // HU-11: la UI pide setLike() y no sabe si se guarda con POST o DELETE.
-    @Binds
-    abstract fun bindPostLikeRepository(impl: DefaultPostLikeRepository): PostLikeRepository
+    @Singleton
+    abstract fun bindPostRepository(impl: PostRepositoryImpl): PostRepository
 }
