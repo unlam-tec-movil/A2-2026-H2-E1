@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
+import ar.edu.unlam.mobile.movil22026h2.di.NetworkPosts
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import ar.edu.unlam.mobile.movil22026h2.di.NetworkPosts
 
 data class PostDetailUiState(
     val isLoading: Boolean = false,
@@ -23,41 +23,41 @@ data class PostDetailUiState(
 
 @HiltViewModel
 class PostViewModel
-@Inject
-constructor(
-    private val savedStateHandle: SavedStateHandle,
-    @NetworkPosts private val repository: PostRepository,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(PostDetailUiState())
+    @Inject
+    constructor(
+        private val savedStateHandle: SavedStateHandle,
+        @NetworkPosts private val repository: PostRepository,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(PostDetailUiState())
 
-    val uiState: StateFlow<PostDetailUiState> = _uiState.asStateFlow()
+        val uiState: StateFlow<PostDetailUiState> = _uiState.asStateFlow()
 
-    init {
-        load()
-    }
+        init {
+            load()
+        }
 
-    private fun load() {
-        // Navigation guarda el argumento "postId" acá automáticamente.
-        val postId = savedStateHandle.get<Int>("postId") ?: 0
+        private fun load() {
+            // Navigation guarda el argumento "postId" acá automáticamente.
+            val postId = savedStateHandle.get<Int>("postId") ?: 0
 
-        viewModelScope.launch {
-            _uiState.value = PostDetailUiState(isLoading = true)
+            viewModelScope.launch {
+                _uiState.value = PostDetailUiState(isLoading = true)
 
-            try {
-                val post = repository.getPost(postId)
-                val replies = repository.getReplies(postId)
+                try {
+                    val post = repository.getPost(postId)
+                    val replies = repository.getReplies(postId)
 
-                _uiState.value = PostDetailUiState(post = post, replies = replies)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _uiState.value =
-                    PostDetailUiState(error = e.message ?: "No se pudo cargar el post")
+                    _uiState.value = PostDetailUiState(post = post, replies = replies)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    _uiState.value =
+                        PostDetailUiState(error = e.message ?: "No se pudo cargar el post")
+                }
             }
         }
-    }
 
-    fun retry() {
-        load()
+        fun retry() {
+            load()
+        }
     }
-}

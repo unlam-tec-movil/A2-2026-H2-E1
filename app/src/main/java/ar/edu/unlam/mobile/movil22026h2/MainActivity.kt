@@ -50,8 +50,6 @@ import javax.inject.Inject
 const val LOGIN_SCREEN_ROUTE = "login_screen"
 const val REGISTER_SCREEN_ROUTE = "register_screen"
 
-
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     // Hilt nos da la instancia de SessionManager.

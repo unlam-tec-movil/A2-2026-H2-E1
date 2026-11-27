@@ -58,7 +58,6 @@ android {
             "\"${localProperty("TUITER_BASE_URL", "https://tuiter.fragua.com.ar/api/v1/")}\"",
         )
         buildConfigField("String", "APPLICATION_TOKEN", "\"${localProperty("TUITER_APPLICATION_TOKEN")}\"")
-
     }
 
     buildTypes {

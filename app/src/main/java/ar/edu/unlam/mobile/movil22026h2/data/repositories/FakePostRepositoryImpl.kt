@@ -54,37 +54,36 @@ private val samplePosts =
 
 @Singleton
 class FakePostRepositoryImpl
-@Inject
-constructor(
-    private val profileRepository: ProfileRepository,
-) : PostRepository {
-    private val postsFlow = MutableStateFlow(samplePosts)
+    @Inject
+    constructor(
+        private val profileRepository: ProfileRepository,
+    ) : PostRepository {
+        private val postsFlow = MutableStateFlow(samplePosts)
 
-    override fun observePosts(page: Int): Flow<List<Post>> = postsFlow.asStateFlow()
+        override fun observePosts(page: Int): Flow<List<Post>> = postsFlow.asStateFlow()
 
-    override suspend fun createPost(content: String) {
-        val trimmedContent = content.trim()
-        require(trimmedContent.isNotEmpty()) { "El contenido del post no puede estar vacío" }
+        override suspend fun createPost(content: String) {
+            val trimmedContent = content.trim()
+            require(trimmedContent.isNotEmpty()) { "El contenido del post no puede estar vacío" }
 
-        val profile = runCatching { profileRepository.getProfile() }.getOrNull()
-        val nextId = (postsFlow.value.maxOfOrNull { it.id } ?: 0) + 1
-        val newPost =
-            Post(
-                id = nextId,
-                authorName = profile?.name?.takeIf { it.isNotBlank() } ?: "Yo",
-                authorAvatarUrl = profile?.avatarUrl ?: "",
-                content = trimmedContent,
-            )
+            val profile = runCatching { profileRepository.getProfile() }.getOrNull()
+            val nextId = (postsFlow.value.maxOfOrNull { it.id } ?: 0) + 1
+            val newPost =
+                Post(
+                    id = nextId,
+                    authorName = profile?.name?.takeIf { it.isNotBlank() } ?: "Yo",
+                    authorAvatarUrl = profile?.avatarUrl ?: "",
+                    content = trimmedContent,
+                )
 
-        postsFlow.update { currentPosts -> listOf(newPost) + currentPosts }
+            postsFlow.update { currentPosts -> listOf(newPost) + currentPosts }
+        }
+
+        // (HU-09) busca el post falso por id entre los ejemplos.
+        override suspend fun getPost(id: Int): Post =
+            samplePosts.firstOrNull { it.id == id }
+                ?: throw IllegalStateException("No hay post falso con id $id")
+
+        // (HU-09) los posts falsos no tienen respuestas (lista vacía).
+        override suspend fun getReplies(id: Int): List<Post> = emptyList()
     }
-
-    //(HU-09) busca el post falso por id entre los ejemplos.
-    override suspend fun getPost(id: Int): Post =
-        samplePosts.firstOrNull { it.id == id }
-            ?: throw IllegalStateException("No hay post falso con id $id")
-
-    //(HU-09) los posts falsos no tienen respuestas (lista vacía).
-    override suspend fun getReplies(id: Int): List<Post> = emptyList()
-
-}

@@ -87,8 +87,8 @@ fun HomeScreen(
                 layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
 
             layoutInfo.totalItemsCount >= 2 &&
-                    lastVisibleItem >= layoutInfo.totalItemsCount - 2 &&
-                    listState.isScrollInProgress
+                lastVisibleItem >= layoutInfo.totalItemsCount - 2 &&
+                listState.isScrollInProgress
         }.distinctUntilChanged()
             .collect { nearBottom ->
                 if (nearBottom) {
