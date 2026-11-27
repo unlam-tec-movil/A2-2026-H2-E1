@@ -4,6 +4,7 @@ import ar.edu.unlam.mobile.movil22026h2.BuildConfig
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.TuiterApi
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.interceptor.ApplicationTokenInterceptor
 import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.interceptor.AuthorizationInterceptor
+import ar.edu.unlam.mobile.movil22026h2.data.datasources.network.interfaces.PostApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -55,4 +56,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideAuthTuiterApi(retrofit: Retrofit): AuthTuiterApi = retrofit.create(AuthTuiterApi::class.java)
+
+    @Provides
+    @Singleton
+    fun providePostApi(retrofit: Retrofit): PostApi = retrofit.create(PostApi::class.java)
 }

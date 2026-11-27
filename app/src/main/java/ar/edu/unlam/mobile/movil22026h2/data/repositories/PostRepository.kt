@@ -10,4 +10,8 @@ interface PostRepository {
     fun observePosts(page: Int = 1): Flow<List<Post>>
 
     suspend fun createPost(content: String)
+
+    suspend fun getPost(id: Int): Post
+
+    suspend fun getReplies(id: Int): List<Post>
 }

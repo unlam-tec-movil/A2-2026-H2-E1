@@ -1,5 +1,6 @@
 package ar.edu.unlam.mobile.movil22026h2.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -43,15 +44,25 @@ const val HOME_SCREEN_ROUTE = "home"
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
+    onPostClick: (Int) -> Unit = {},
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
-    // Observa los estados del feed.
-    // Compose actualiza la interfaz cuando cambia el estado.
+    // Observa los estados del feed. Compose actualiza la interfaz cuando cambia el estado.
     val feedUiState by viewModel.feedUiState.collectAsState()
     val additionalPosts by viewModel.additionalPosts.collectAsState()
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
-    val listState = rememberLazyListState() // recordar el desplazamiento
+    val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // VIEJO CODIGO
+    // val posts by viewModel.posts.collectAsState()
+    // Ese viewModel.posts no existe en el HomeViewModel de A2. Lo sacamos del
+    // estado del feed, que es donde ya vienen los posts de verdad.
+    val posts: List<Post> =
+        when (val state = feedUiState) {
+            is FeedUiState.Success -> (state.posts + additionalPosts).distinctBy { it.id }
+            else -> emptyList()
+        }
 
     // Escenario 1: al guardar un autor se muestra la confirmación.
     LaunchedEffect(Unit) {
@@ -65,10 +76,7 @@ fun HomeScreen(
         }
     }
 
-    val hasLoadedPosts =
-        (feedUiState as? FeedUiState.Success)
-            ?.posts
-            ?.isNotEmpty() == true
+    val hasLoadedPosts = posts.isNotEmpty()
 
     LaunchedEffect(listState, hasLoadedPosts) {
         if (!hasLoadedPosts) return@LaunchedEffect
@@ -110,44 +118,23 @@ fun HomeScreen(
                 )
             }
 
-            when (val state = feedUiState) { // Muestra el contenido correspondiente al estado del feed con un case.
+            // Una sola lista:evita dibujar los posts dos veces y hace que
+            // TODAS las tarjetas reciban el click para ir al detalle.
+            items(posts, key = { it.id }) { post ->
+                PostCard(
+                    post = post,
+                    isFavorite = post.authorName in favoriteNames,
+                    onAddFavorite = { viewModel.addFavorite(post.authorName, post.authorAvatarUrl) },
+                    onPostClick = { onPostClick(post.id) },
+                )
+            }
 
+            when (val state = feedUiState) {
                 FeedUiState.Loading -> {
-                    item {
-                        CircularProgressIndicator()
-                    }
+                    item { CircularProgressIndicator() }
                 }
 
-                is FeedUiState.Success -> {
-                    val allPosts =
-                        (state.posts + additionalPosts).distinctBy { it.id }
-                    if (state.posts.isEmpty()) {
-                        item {
-                            Text("Todavía no hay publicaciones")
-                        }
-                    } else {
-                        items(allPosts, key = { it.id }) { post ->
-                            PostCard(
-                                post = post,
-                                // Escenario 2: si el nombre ya está en favoritos, el post lo indica.
-                                isFavorite = post.authorName in favoriteNames,
-                                onAddFavorite = {
-                                    viewModel.addFavorite(
-                                        post.authorName,
-                                        post.authorAvatarUrl,
-                                    )
-                                },
-                            )
-                        }
-                        if (isLoadingMore) {
-                            item {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.padding(16.dp),
-                                )
-                            }
-                        }
-                    }
-                }
+                is FeedUiState.Success -> Unit
 
                 is FeedUiState.Error -> {
                     item {
@@ -159,6 +146,12 @@ fun HomeScreen(
                     }
                 }
             }
+
+            if (isLoadingMore && posts.isNotEmpty()) {
+                item {
+                    CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                }
+            }
         }
     }
 }
@@ -168,9 +161,14 @@ private fun PostCard(
     post: Post,
     isFavorite: Boolean,
     onAddFavorite: () -> Unit,
+    onPostClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier.fillMaxWidth()) {
+    // VIEJO CODIGO
+    // Card(modifier = modifier.fillMaxWidth()) {
+
+    // clickable detecta el toque sobre toda la tarjeta y avisa a MainActivity.
+    Card(modifier = modifier.fillMaxWidth().clickable { onPostClick() }) {
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),

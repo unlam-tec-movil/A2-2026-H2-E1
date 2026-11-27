@@ -20,10 +20,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import ar.edu.unlam.mobile.movil22026h2.data.session.SessionManager
 import ar.edu.unlam.mobile.movil22026h2.ui.components.BottomBar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.SnackbarVisualsWithError
@@ -34,6 +36,9 @@ import ar.edu.unlam.mobile.movil22026h2.ui.screens.FavoriteUsersScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HOME_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.HomeScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.login.LoginScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.POST_DETAIL_SCREEN_ROUTE
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.PostDetailScreen
+import ar.edu.unlam.mobile.movil22026h2.ui.screens.post.postDetailRoute
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.PROFILE_SCREEN_ROUTE
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.profile.ProfileScreen
 import ar.edu.unlam.mobile.movil22026h2.ui.screens.register.RegisterScreen
@@ -47,15 +52,14 @@ const val REGISTER_SCREEN_ROUTE = "register_screen"
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    // indicamos con inject que queremos que se inyecte dicha dependencia
-    // usamos lateinit para declarar la propiedad sin inicializarla ahora
-    // necesitamos una instancia de SessionManager
-    // Hilt nos proporciona esa instancia automaticamente de SessionManager
+    // Hilt nos da la instancia de SessionManager.
+    // Con el token definimos si arrancamos en Home o en Login.
     @Inject
     lateinit var sessionManager: SessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         val startDestination =
             if (sessionManager.getToken() != null) {
                 HOME_SCREEN_ROUTE
@@ -99,8 +103,7 @@ fun MainScreen(startDestination: String = LOGIN_SCREEN_ROUTE) {
     }
 
     Scaffold(
-        // La barra inferior es el único acceso a "Crear": antes había además un
-        // botón flotante que hacía exactamente lo mismo.
+        // La barra inferior es el único acceso a "Crear".
         bottomBar = { if (showBottomBar) BottomBar(controller = controller) },
         snackbarHost = {
             SnackbarHost(snackBarHostState) { data ->
@@ -156,9 +159,20 @@ fun MainScreen(startDestination: String = LOGIN_SCREEN_ROUTE) {
                 )
             }
 
+            // HU-09: Home le pasa el id del post tocado y Navigation arma la ruta.
             composable(HOME_SCREEN_ROUTE) {
-                // Home es el componente en sí que es el destino de navegación.
-                HomeScreen(modifier = Modifier.padding(paddingValue))
+                HomeScreen(
+                    modifier = Modifier.padding(paddingValue),
+                    onPostClick = { postId -> controller.navigate(postDetailRoute(postId)) },
+                )
+            }
+
+            // HU-09: ruta del detalle con argumento entero.
+            composable(
+                route = POST_DETAIL_SCREEN_ROUTE,
+                arguments = listOf(navArgument("postId") { type = NavType.IntType }),
+            ) {
+                PostDetailScreen(modifier = Modifier.padding(paddingValue))
             }
 
             composable(PROFILE_SCREEN_ROUTE) {

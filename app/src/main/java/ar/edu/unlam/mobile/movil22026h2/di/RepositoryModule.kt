@@ -14,10 +14,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * Le dice a Hilt qué implementación usar cuando alguien pida la interfaz.
- * Así el ViewModel pide ProfileRepository y recibe DefaultProfileRepository.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule { // @Binds exige clase abstracta, no object
@@ -25,7 +21,6 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     @Singleton
     abstract fun bindProfileRepository(impl: DefaultProfileRepository): ProfileRepository
 
-    // "Cuando pidan la interfaz, entregá esta IMPLEMENTACIÓN"
     @Binds
     abstract fun bindDraftRepository(impl: DraftRepositoryImpl): DraftRepository
 
