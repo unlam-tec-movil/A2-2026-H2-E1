@@ -1,10 +1,13 @@
 package ar.edu.unlam.mobile.movil22026h2.di
 
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.ApiPostRepository
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.DefaultPostLikeRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DefaultProfileRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.DraftRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.FavoriteUserRepositoryImpl
+import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostLikeRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepository
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.PostRepositoryImpl
 import ar.edu.unlam.mobile.movil22026h2.data.repositories.ProfileRepository
@@ -32,6 +35,8 @@ abstract class RepositoryModule { // @Binds exige clase abstracta, no object
     @Binds
     abstract fun bindFavoriteUserRepository(impl: FavoriteUserRepositoryImpl): FavoriteUserRepository
 
+    // R1/R2/R8: el feed real de la API reemplaza al repositorio local.
+    // Mantiene createPost() y observePosts(page) del contrato de develop.
     @Binds
     @Singleton
     abstract fun bindPostRepository(impl: PostRepositoryImpl): PostRepository

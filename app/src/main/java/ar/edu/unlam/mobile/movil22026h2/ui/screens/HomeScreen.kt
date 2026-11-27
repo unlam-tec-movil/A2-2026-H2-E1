@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -35,6 +32,7 @@ import ar.edu.unlam.mobile.movil22026h2.data.datasources.model.Post
 import ar.edu.unlam.mobile.movil22026h2.ui.components.AuthorAvatar
 import ar.edu.unlam.mobile.movil22026h2.ui.components.ErrorView
 import ar.edu.unlam.mobile.movil22026h2.ui.components.FavoriteAuthorButton
+import ar.edu.unlam.mobile.movil22026h2.ui.components.LikeButton
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 const val HOME_SCREEN_ROUTE = "home"
@@ -45,12 +43,11 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val favoriteNames by viewModel.favoriteNames.collectAsState()
-    // Observa los estados del feed.
-    // Compose actualiza la interfaz cuando cambia el estado.
     val feedUiState by viewModel.feedUiState.collectAsState()
-    val additionalPosts by viewModel.additionalPosts.collectAsState()
+    val feedPosts by viewModel.feedPosts.collectAsState()
+    val likeStates by viewModel.likeStates.collectAsState()
     val isLoadingMore by viewModel.isLoadingMore.collectAsState()
-    val listState = rememberLazyListState() // recordar el desplazamiento
+    val listState = rememberLazyListState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Escenario 1: al guardar un autor se muestra la confirmación.
@@ -65,6 +62,20 @@ fun HomeScreen(
         }
     }
 
+    // HU-11: confirmación del like y aviso si la API lo rechazó.
+    LaunchedEffect(Unit) {
+        viewModel.likeEvents.collect { event ->
+            val message =
+                when (event) {
+                    is LikeEvent.Saved ->
+                        if (event.liked) "Me gusta guardado" else "Me gusta quitado"
+                    is LikeEvent.Failed -> "No se pudo guardar el like: ${event.exception.message ?: "error"}"
+                }
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    // Paginado: al llegar al final de la lista se pide la página siguiente.
     val hasLoadedPosts =
         (feedUiState as? FeedUiState.Success)
             ?.posts
@@ -110,8 +121,7 @@ fun HomeScreen(
                 )
             }
 
-            when (val state = feedUiState) { // Muestra el contenido correspondiente al estado del feed con un case.
-
+            when (val state = feedUiState) {
                 FeedUiState.Loading -> {
                     item {
                         CircularProgressIndicator()
@@ -119,14 +129,12 @@ fun HomeScreen(
                 }
 
                 is FeedUiState.Success -> {
-                    val allPosts =
-                        (state.posts + additionalPosts).distinctBy { it.id }
-                    if (state.posts.isEmpty()) {
+                    if (feedPosts.isEmpty()) {
                         item {
                             Text("Todavía no hay publicaciones")
                         }
                     } else {
-                        items(allPosts, key = { it.id }) { post ->
+                        items(feedPosts, key = { it.id }) { post ->
                             PostCard(
                                 post = post,
                                 // Escenario 2: si el nombre ya está en favoritos, el post lo indica.
@@ -137,6 +145,8 @@ fun HomeScreen(
                                         post.authorAvatarUrl,
                                     )
                                 },
+                                likeState = likeStates[post.id] ?: LikeState(post.liked, post.likes),
+                                onToggleLike = { viewModel.toggleLike(post) },
                             )
                         }
                         if (isLoadingMore) {
@@ -168,6 +178,8 @@ private fun PostCard(
     post: Post,
     isFavorite: Boolean,
     onAddFavorite: () -> Unit,
+    likeState: LikeState,
+    onToggleLike: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier.fillMaxWidth()) {
@@ -213,30 +225,15 @@ private fun PostCard(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Row(
-                    modifier =
-                        Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 8.dp,
-                        ),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = "${post.likes} Me gusta",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                }
-
+                LikeButton(
+                    liked = likeState.liked,
+                    likes = likeState.likes,
+                    onClick = onToggleLike,
+                    enabled = !likeState.pending,
+                )
                 FavoriteAuthorButton(
                     authorName = post.authorName,
                     isFavorite = isFavorite,
